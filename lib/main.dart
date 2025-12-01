@@ -1,11 +1,21 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
-import 'package:frontend/screens/auth/login_screen.dart';
+import 'package:frontend/screens/home_screen.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
-  await dotenv.load(fileName: '.env');
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // When not running on web, load environment variables from .env file
+  if (!kIsWeb) {
+    try {
+      await dotenv.load(fileName: '.env');
+    } catch (e) {
+      print('Warning: Could not load .env file: $e');
+    }
+  }
 
   runApp(
     MultiProvider(
@@ -25,7 +35,7 @@ class ResQFoodApp extends StatelessWidget {
     return const MaterialApp(
       title: 'ResQFood',
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      home: HomeScreen(),
     );
   }
 }
