@@ -15,13 +15,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const _bottomNavPadding = EdgeInsets.only(bottom: 70);
-  static const _itemListPadding = EdgeInsets.all(16);
+  static const _itemListPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 0);
   static const _itemCardPadding = EdgeInsets.only(bottom: 12);
 
   List<Item> items = [];
   late ItemService _itemService;
   bool _isLoading = true;
+  bool _sortAscending = false; // false = descending (default), true = ascending
+  String _currentSort = 'dueDate'; // 'title' or 'dueDate'
 
   @override
   void initState() {
@@ -93,6 +94,33 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _sortItems(String sortType) {
+    setState(() {
+      _currentSort = sortType;
+      if (sortType == 'title') {
+        items.sort((a, b) => _sortAscending
+            ? a.name.compareTo(b.name)
+            : b.name.compareTo(a.name));
+      } else if (sortType == 'dueDate') {
+        items.sort((a, b) {
+          if (a.expirationDate == null && b.expirationDate == null) return 0;
+          if (a.expirationDate == null) return 1;
+          if (b.expirationDate == null) return -1;
+          final dateA = DateTime.parse(a.expirationDate!);
+          final dateB = DateTime.parse(b.expirationDate!);
+          return _sortAscending ? dateA.compareTo(dateB) : dateB.compareTo(dateA);
+        });
+      }
+    });
+  }
+
+  void _toggleSortDirection() {
+    setState(() {
+      _sortAscending = !_sortAscending;
+      _sortItems(_currentSort);
+    });
+  }
+
   void _navigateToItemDetail(int index) async {
     await Navigator.push(
       context,
@@ -152,10 +180,82 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildItemsList() {
     return ListView.builder(
-      padding: _itemListPadding,
+      padding: _itemListPadding.copyWith(top: 12, bottom: 16),
       physics: const BouncingScrollPhysics(),
       itemCount: items.length,
       itemBuilder: (context, index) => _buildItemCard(items[index], index),
+    );
+  }
+
+  Widget _buildFilterSection() {
+    final sortLabels = {
+      'title': 'Title',
+      'dueDate': 'Due Date',
+    };
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      color: Colors.grey[50],
+      child: Row(
+        children: [
+          const Text(
+            'Sort by',
+            style: TextStyle(fontSize: 13, color: Colors.grey),
+          ),
+          const SizedBox(width: 4),
+          PopupMenuButton<String>(
+            onSelected: _sortItems,
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem<String>(
+                value: 'title',
+                child: Row(
+                  children: [
+                    const Icon(Icons.text_fields, size: 18),
+                    const SizedBox(width: 12),
+                    const Text('Title'),
+                    if (_currentSort == 'title')
+                      const Padding(
+                        padding: EdgeInsets.only(left: 16),
+                        child: Icon(Icons.check, size: 18, color: Colors.green),
+                      ),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'dueDate',
+                child: Row(
+                  children: [
+                    const Icon(Icons.calendar_today, size: 18),
+                    const SizedBox(width: 12),
+                    const Text('Due Date'),
+                    if (_currentSort == 'dueDate')
+                      const Padding(
+                        padding: EdgeInsets.only(left: 8),
+                        child: Icon(Icons.check, size: 18, color: Colors.green),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                sortLabels[_currentSort] ?? 'Due Date',
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: _toggleSortDirection,
+            child: Icon(
+              _sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
+              color: Colors.grey,
+              size: 16,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -165,18 +265,19 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: const ResqfoodAppBar(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : items.isEmpty
-          ? _buildEmptyState()
-          : _buildItemsList(),
-      floatingActionButton: Padding(
-        padding: _bottomNavPadding,
-        child: FloatingActionButton(
-          onPressed: _navigateToAddItem,
-          backgroundColor: Colors.black,
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
+          : Column(
+              children: [
+                if (items.isNotEmpty) _buildFilterSection(),
+                Expanded(
+                  child: items.isEmpty ? _buildEmptyState() : _buildItemsList(),
+                ),
+              ],
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _navigateToAddItem,
+        backgroundColor: const Color(0xFF2E7D32),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: ResqfoodBottomNavBar(
         currentIndex: 0,
         onTap: (_) {},
