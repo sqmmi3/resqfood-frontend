@@ -109,18 +109,14 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                 children: [
                   _buildDetailRow('Name', currentItem.name),
                   _buildDivider(),
-                  _buildDetailRow('Category', currentItem.category.isEmpty ? 'None' : currentItem.category),
+                  _buildDetailRow('Category', currentItem.category ?? 'None'),
                   _buildDivider(),
-                  _buildDetailRow('Quantity', currentItem.quantity.isEmpty ? '-' : currentItem.quantity),
+                  _buildDetailRow('Quantity', currentItem.quantity?.toString() ?? '-'),
                   _buildDivider(),
-                  _buildDetailRow('Expiration date', currentItem.expirationDate),
+                  _buildDetailRow('Expiration date', currentItem.expirationDate ?? '-'),
                   if (currentItem.openedDate != null) ...[
                     _buildDivider(),
                     _buildDetailRow('Opened date', currentItem.openedDate!),
-                  ],
-                  if (currentItem.openedRule != null) ...[
-                    _buildDivider(),
-                    _buildDetailRow('Opened rule', currentItem.openedRule!),
                   ],
                   if (currentItem.description != null) ...[
                     _buildDivider(),

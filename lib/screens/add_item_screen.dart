@@ -14,25 +14,24 @@ class _AddItemScreenState extends State<AddItemScreen> {
   final _quantityController = TextEditingController();
   final _expirationDateController = TextEditingController();
   final _openedDateController = TextEditingController();
-  final _openedRuleController = TextEditingController();
   final _descriptionController = TextEditingController();
 
   final List<String> _categories = [
     'None',
-    'Fruit',
-    'Vegetable',
-    'Grain',
-    'Protein',
-    'Fish',
-    'Dairy',
-    'Sweets',
-    'Beverage',
-    'Ready_meal',
-    'Spice',
-    'Baking',
-    'Frozen',
-    'Canned',
-    'Pantry',
+    'FRUIT',
+    'VEGETABLE',
+    'GRAIN',
+    'PROTEIN',
+    'FISH',
+    'DAIRY',
+    'SWEETS',
+    'BEVERAGE',
+    'READY_MEAL',
+    'SPICE',
+    'BAKING',
+    'FROZEN',
+    'CANNED',
+    'PANTRY',
   ];
 
   String? _selectedCategory = 'None';
@@ -43,7 +42,6 @@ class _AddItemScreenState extends State<AddItemScreen> {
     _quantityController.dispose();
     _expirationDateController.dispose();
     _openedDateController.dispose();
-    _openedRuleController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -57,22 +55,50 @@ class _AddItemScreenState extends State<AddItemScreen> {
 
   String? _validateExpirationDate(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Expiration date is required and must be in the future.';
+      return 'Expiration date is required.';
     }
     try {
-      // Parse DD/MM/YYYY format
       final parts = value.split('/');
       if (parts.length != 3) {
-        return 'Expiration date is required and must be in the future.';
+        return 'Expiration date is required.';
       }
       final date = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
       if (date.isBefore(DateTime.now())) {
-        return 'Expiration date is required and must be in the future.';
+        return 'Expiration date must be in the future.';
       }
     } catch (e) {
-      return 'Expiration date is required and must be in the future.';
+      return 'Expiration date is required.';
     }
     return null;
+  }
+
+  String _convertDateDDMMYYYYToYYYYMMDD(String dateStr) {
+    try {
+      final parts = dateStr.split('/');
+      if (parts.length == 3) {
+        return '${parts[2]}-${parts[1]}-${parts[0]}';
+      }
+    } catch (e) {
+      // If conversion fails, return as is
+    }
+    return dateStr;
+  }
+
+  String? _getFormattedExpirationDate() {
+    final text = _expirationDateController.text;
+    return text.isEmpty ? null : _convertDateDDMMYYYYToYYYYMMDD(text);
+  }
+
+  String? _getFormattedOpenedDate() {
+    final text = _openedDateController.text;
+    return text.isEmpty ? null : _convertDateDDMMYYYYToYYYYMMDD(text);
+  }
+
+  String? _getSelectedCategory() {
+    if (_selectedCategory == null || _selectedCategory == 'None') {
+      return null;
+    }
+    return _selectedCategory;
   }
 
   Future<void> _selectDate(TextEditingController controller, {bool futureOnly = false}) async {
@@ -87,7 +113,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
         final day = picked.day.toString().padLeft(2, '0');
         final month = picked.month.toString().padLeft(2, '0');
         final year = picked.year;
-        controller.text = '$day/$month/$year'; // Format as DD/MM/YYYY
+        controller.text = '$day/$month/$year';
       });
     }
   }
@@ -96,11 +122,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
     if (_formKey.currentState!.validate()) {
       final item = Item(
         name: _nameController.text,
-        category: _selectedCategory == 'None' ? '' : (_selectedCategory ?? ''),
-        quantity: _quantityController.text,
-        expirationDate: _expirationDateController.text,
-        openedDate: _openedDateController.text.isEmpty ? null : _openedDateController.text,
-        openedRule: _openedRuleController.text.isEmpty ? null : _openedRuleController.text,
+        category: _getSelectedCategory(),
+        quantity: int.tryParse(_quantityController.text),
+        expirationDate: _getFormattedExpirationDate(),
+        openedDate: _getFormattedOpenedDate(),
         description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
       );
       Navigator.pop(context, item);
@@ -160,7 +185,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
               const Text('Category (opt)', style: TextStyle(fontWeight: FontWeight.bold)),
               const Text('Category', style: TextStyle(color: Colors.grey, fontSize: 12)),
               DropdownButtonFormField<String>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 items: _categories
                     .map((category) => DropdownMenuItem(
                           value: category,
@@ -184,6 +209,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
               TextFormField(
                 controller: _quantityController,
                 keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value != null && value.isNotEmpty && int.tryParse(value) == null) {
+                    return 'Quantity must be a number';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   border: const UnderlineInputBorder(),
                   isDense: true,
@@ -216,17 +247,6 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   border: const UnderlineInputBorder(),
                   isDense: true,
                   suffixIcon: Icon(Icons.calendar_today, color: Colors.grey[400], size: 18),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text('Opened rule (opt)', style: TextStyle(fontWeight: FontWeight.bold)),
-              const Text('2 days', style: TextStyle(color: Colors.grey, fontSize: 12)),
-              TextFormField(
-                controller: _openedRuleController,
-                decoration: InputDecoration(
-                  border: const UnderlineInputBorder(),
-                  isDense: true,
-                  suffixIcon: Icon(Icons.lock, color: Colors.grey[400], size: 18),
                 ),
               ),
               const SizedBox(height: 20),
