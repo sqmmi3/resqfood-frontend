@@ -132,164 +132,200 @@ class _AddItemScreenState extends State<AddItemScreen> {
     }
   }
 
+  Widget _buildFormField({
+    required String label,
+    required String hint,
+    required TextEditingController controller,
+    String? Function(String?)? validator,
+    TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    IconData? suffixIcon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          validator: validator,
+          keyboardType: keyboardType,
+          maxLines: maxLines,
+          readOnly: readOnly,
+          onTap: onTap,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.black, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            suffixIcon: suffixIcon != null 
+              ? Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: Icon(suffixIcon, color: Colors.grey[400], size: 20),
+                )
+              : null,
+            filled: true,
+            fillColor: Colors.grey[50],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategoryDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Category', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          initialValue: _selectedCategory,
+          items: _categories
+              .map((category) => DropdownMenuItem(value: category, child: Text(category)))
+              .toList(),
+          onChanged: (value) => setState(() => _selectedCategory = value),
+          decoration: InputDecoration(
+            hintText: 'Select a category',
+            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.black, width: 2),
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () => Navigator.pop(context),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              side: const BorderSide(color: Colors.black, width: 1.5),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600)),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: _submitForm,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Add', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Logo'),
+        title: const Text('Add Item'),
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black),
-          onPressed: () {},
+          icon: const Icon(Icons.close, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Center(
-                child: Text(
-                  'Add item',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              const Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
-              const Text('Name', style: TextStyle(color: Colors.grey, fontSize: 12)),
-              TextFormField(
+              _buildFormField(
+                label: 'Name *',
+                hint: 'Enter item name',
                 controller: _nameController,
                 validator: _validateName,
-                decoration: const InputDecoration(
-                  border: UnderlineInputBorder(),
-                  isDense: true,
-                ),
               ),
-              const SizedBox(height: 20),
-              const Text('Category (opt)', style: TextStyle(fontWeight: FontWeight.bold)),
-              const Text('Category', style: TextStyle(color: Colors.grey, fontSize: 12)),
-              DropdownButtonFormField<String>(
-                initialValue: _selectedCategory,
-                items: _categories
-                    .map((category) => DropdownMenuItem(
-                          value: category,
-                          child: Text(category),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCategory = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                  border: UnderlineInputBorder(),
-                  isDense: true,
-                  hintText: 'Select a category',
-                ),
+              const SizedBox(height: 24),
+              _buildFormField(
+                label: 'Expiration date *',
+                hint: 'DD/MM/YYYY',
+                controller: _expirationDateController,
+                validator: _validateExpirationDate,
+                readOnly: true,
+                onTap: () => _selectDate(_expirationDateController, futureOnly: true),
+                suffixIcon: Icons.calendar_today,
               ),
-              const SizedBox(height: 20),
-              const Text('Quantity (opt)', style: TextStyle(fontWeight: FontWeight.bold)),
-              const Text('Quantity', style: TextStyle(color: Colors.grey, fontSize: 12)),
-              TextFormField(
+              const SizedBox(height: 24),
+              _buildCategoryDropdown(),
+              const SizedBox(height: 24),
+              _buildFormField(
+                label: 'Quantity',
+                hint: 'Enter quantity in grams',
                 controller: _quantityController,
-                keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value != null && value.isNotEmpty && int.tryParse(value) == null) {
                     return 'Quantity must be a number';
                   }
                   return null;
                 },
-                decoration: InputDecoration(
-                  border: const UnderlineInputBorder(),
-                  isDense: true,
-                  suffixIcon: Icon(Icons.lock, color: Colors.grey[400], size: 18),
-                ),
+                keyboardType: TextInputType.number,
+                suffixIcon: Icons.inventory_2,
               ),
-              const SizedBox(height: 20),
-              const Text('Expiration date', style: TextStyle(fontWeight: FontWeight.bold)),
-              const Text('Expiration date', style: TextStyle(color: Colors.grey, fontSize: 12)),
-              TextFormField(
-                controller: _expirationDateController,
-                validator: _validateExpirationDate,
-                readOnly: true,
-                onTap: () => _selectDate(_expirationDateController, futureOnly: true),
-                decoration: InputDecoration(
-                  border: const UnderlineInputBorder(),
-                  isDense: true,
-                  hintText: 'DD/MM/YYYY',
-                  suffixIcon: Icon(Icons.calendar_today, color: Colors.grey[400], size: 18),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text('Opened date (opt)', style: TextStyle(fontWeight: FontWeight.bold)),
-              const Text('Opened date', style: TextStyle(color: Colors.grey, fontSize: 12)),
-              TextFormField(
+              const SizedBox(height: 24),
+              _buildFormField(
+                label: 'Opened date',
+                hint: 'DD/MM/YYYY',
                 controller: _openedDateController,
                 readOnly: true,
                 onTap: () => _selectDate(_openedDateController),
-                decoration: InputDecoration(
-                  border: const UnderlineInputBorder(),
-                  isDense: true,
-                  suffixIcon: Icon(Icons.calendar_today, color: Colors.grey[400], size: 18),
-                ),
+                suffixIcon: Icons.calendar_today,
               ),
-              const SizedBox(height: 20),
-              const Text('Description (opt)', style: TextStyle(fontWeight: FontWeight.bold)),
-              TextFormField(
+              const SizedBox(height: 24),
+              _buildFormField(
+                label: 'Description',
+                hint: 'Add notes about this item...',
                 controller: _descriptionController,
                 maxLines: 4,
-                decoration: InputDecoration(
-                  hintText: 'Description',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
               ),
-              const SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                    ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: _submitForm,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.black),
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                    ),
-                    child: const Text(
-                      'Add',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ],
-              ),
+              const SizedBox(height: 40),
+              _buildActionButtons(),
               const SizedBox(height: 20),
             ],
           ),

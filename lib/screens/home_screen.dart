@@ -15,6 +15,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  static const _bottomNavPadding = EdgeInsets.only(bottom: 70);
+  static const _itemListPadding = EdgeInsets.all(16);
+  static const _itemCardPadding = EdgeInsets.only(bottom: 12);
+
   List<Item> items = [];
   late ItemService _itemService;
   bool _isLoading = true;
@@ -42,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _addItem(Item newItem) async {
+  Future<void> _addItem(Item newItem) async {
     try {
       final createdItem = await _itemService.postItem(newItem);
       setState(() => items.add(createdItem));
@@ -89,6 +93,72 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _navigateToItemDetail(int index) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ItemDetailScreen(
+          item: items[index],
+          onUpdate: (updatedItem) => _updateItem(index, updatedItem),
+          onDelete: () => _deleteItem(index),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _navigateToAddItem() async {
+    final newItem = await Navigator.push<Item>(
+      context,
+      MaterialPageRoute(builder: (context) => const AddItemScreen()),
+    );
+    if (mounted && newItem != null) _addItem(newItem);
+  }
+
+  Widget _buildEmptyState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('No items yet', style: TextStyle(fontSize: 18)),
+          SizedBox(height: 10),
+          Text('Tap the + button to add an item', style: TextStyle(fontSize: 14)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItemCard(Item item, int index) {
+    return Padding(
+      padding: _itemCardPadding,
+      child: GestureDetector(
+        onTap: () => _navigateToItemDetail(index),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(item.name, style: const TextStyle(fontWeight: FontWeight.w500)),
+              Text(item.expirationDate ?? '-', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItemsList() {
+    return ListView.builder(
+      padding: _itemListPadding,
+      physics: const BouncingScrollPhysics(),
+      itemCount: items.length,
+      itemBuilder: (context, index) => _buildItemCard(items[index], index),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,65 +166,12 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : items.isEmpty
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('No items yet', style: TextStyle(fontSize: 18)),
-                  SizedBox(height: 10),
-                  Text('Tap the + button to add an item', style: TextStyle(fontSize: 14)),
-                ],
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              physics: const BouncingScrollPhysics(),
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: GestureDetector(
-                  onTap: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ItemDetailScreen(
-                            item: item,
-                            onUpdate: (updatedItem) => _updateItem(index, updatedItem),
-                            onDelete: () => _deleteItem(index),
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(item.name),
-                          Text(item.expirationDate ?? '-'),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+          ? _buildEmptyState()
+          : _buildItemsList(),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 70),
+        padding: _bottomNavPadding,
         child: FloatingActionButton(
-          onPressed: () async {
-            final newItem = await Navigator.push<Item>(
-              context,
-              MaterialPageRoute(builder: (context) => const AddItemScreen()),
-            );
-            if (mounted && newItem != null) _addItem(newItem);
-          },
+          onPressed: _navigateToAddItem,
           backgroundColor: Colors.black,
           child: const Icon(Icons.add, color: Colors.white),
         ),
