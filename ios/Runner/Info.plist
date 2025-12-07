@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>FirebaseMessagingAutoInitEnabled</key>
+	<true/>
+	<key>UIApplicationExitOnSuspend<key/>
+	<false/>
+	<key>NSUserTrackingUsageDescription<key/>
+	<string>This is used to deliver notifications tailored for you.<string/>
 </dict>
 </plist>

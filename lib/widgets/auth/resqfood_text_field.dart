@@ -26,7 +26,7 @@ class ResQFoodTextField extends StatelessWidget{
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
-      obscureText: obscure ? obscureValue : false,
+      obscureText: obscure && obscureValue,
       validator: validator,
       onChanged: onChanged,
       cursorColor: Colors.green,
@@ -54,7 +54,7 @@ class ResQFoodTextField extends StatelessWidget{
         suffixIcon: showToggle
             ? IconButton(
                 icon: Icon(
-                  obscureValue ? Icons.visibility : Icons.visibility_off,
+                  obscureValue ? Icons.visibility_off : Icons.visibility,
                 ),
                 onPressed: onToggle,
               )

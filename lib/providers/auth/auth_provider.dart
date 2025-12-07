@@ -3,6 +3,7 @@ import 'package:frontend/models/auth/login_request.dart';
 import 'package:frontend/models/auth/login_response.dart';
 import 'package:frontend/models/auth/register_response.dart';
 import 'package:frontend/services/auth/auth_service.dart';
+import 'package:frontend/services/notification/notification_service.dart';
 
 enum AuthStatus { idle, loading, authenticated, error }
 
@@ -29,6 +30,15 @@ class AuthProvider extends ChangeNotifier {
       final loginRequest = LoginRequest(username: username, password: password);
       _user = await  _authService.login(loginRequest);
       _status = AuthStatus.authenticated;
+
+      final fcmToken = await NotificationService.getDeviceToken();
+      if (fcmToken != null) {
+        try {
+          await _authService.updateDeviceToken(fcmToken);
+        } catch (_) {
+          debugPrint("Failed to send FCM token to backend.");
+        }
+      }
     } catch (e) {
       _errorMessage = e.toString();
       _status = AuthStatus.error;
@@ -56,7 +66,16 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  void logout() {
+  void logout() async {
+    final fcmToken = await NotificationService.getDeviceToken();
+    if (fcmToken != null) {
+      try {
+        await _authService.removeDeviceToken(fcmToken);
+      } catch (_) {
+        debugPrint("Failed to remove FCM token from backend");
+      }
+    }
+
     _user =  null;
     _status = AuthStatus.idle;
     notifyListeners();

@@ -21,11 +21,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    passwordVisible = false;
-  }
-  @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
 
