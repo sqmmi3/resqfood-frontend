@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1006594396654",
+    "project_id": "resqfood-f1ea7",
+    "storage_bucket": "resqfood-f1ea7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1006594396654:android:61f7d4d8bee19f16cdfeff",
+        "android_client_info": {
+          "package_name": "com.example.frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFQgPxcKKzc99PjO_HAYZEFXehsBsOOfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
