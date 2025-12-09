@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class ResqfoodBottomNavBar extends StatelessWidget {
+class ResQFoodBottomNavBar extends StatelessWidget {
   final int currentIndex;
-  final Function(int) onTap;
+  final ValueChanged<int> onTap;
 
-  const ResqfoodBottomNavBar({
+  const ResQFoodBottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
@@ -15,11 +15,20 @@ class ResqfoodBottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
+      backgroundColor: Colors.white,
+      selectedItemColor: Colors.green,
+      unselectedItemColor: Colors.grey.shade600,
+      showUnselectedLabels: true,
       type: BottomNavigationBarType.fixed,
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.receipt), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.settings), label: ''),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.settings),
+          label: 'Settings'
+        ),
       ],
     );
   }

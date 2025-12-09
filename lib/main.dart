@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/firebase_options.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
+import 'package:frontend/providers/user_item/user_item_provider.dart';
 import 'package:frontend/screens/auth/login_screen.dart';
 import 'package:frontend/services/auth/auth_service.dart';
 import 'package:frontend/services/notification/notification_service.dart';
@@ -13,9 +14,9 @@ import 'package:provider/provider.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
-  await dotenv.load(fileName: '.env');
-  
   WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(fileName: '.env');
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -38,6 +39,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => UserItemProvider()),
       ],
       child: const ResQFoodApp(),
     )  

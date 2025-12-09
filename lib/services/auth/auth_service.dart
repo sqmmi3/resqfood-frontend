@@ -5,13 +5,20 @@ import 'package:frontend/models/auth/login_request.dart';
 import 'package:frontend/models/auth/login_response.dart';
 import 'package:frontend/models/auth/register_response.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
   final String baseUrl = dotenv.env['API_BASE_URL'] ?? '';
+  static const storage = FlutterSecureStorage();
   String? _storedJwt;
 
-  void setJWT(String token) {
+  Future<void> saveToken(String token) async {
     _storedJwt = token;
+    await storage.write(key: "auth_token", value: token);
+  }
+
+  static Future<String?> getStoredToken() async {
+    return await storage.read(key: "auth_token");
   }
 
   Future<LoginResponse> login(LoginRequest request) async {
@@ -23,11 +30,16 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final loginResponse = LoginResponse.fromJson(jsonDecode(response.body));
-      setJWT(loginResponse.token);
+      await saveToken(loginResponse.token);
       return loginResponse;
     } else {
-      throw response.body;
+      throw Exception('Login failed: ${response.body}');
     }
+  }
+
+  Future<void> logout() async {
+    _storedJwt = null;
+    await storage.delete(key: "auth_token");
   }
 
   Future<RegisterResponse> register(String username, String email, String password) async {

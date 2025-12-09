@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/screens/auth/register_screen.dart';
+import 'package:frontend/screens/main_screen.dart';
 import 'package:frontend/widgets/auth/auth_header.dart';
 import 'package:frontend/widgets/auth/resqfood_primary_button.dart';
 import 'package:frontend/widgets/auth/resqfood_text_field.dart';
@@ -80,10 +81,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   await auth.login(
                     usernameController.text.trim(),
                     passwordController.text.trim(),
+                    onSuccess: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const MainScreen()),
+                      );
+                    }
                   );
 
                   if (auth.status == AuthStatus.authenticated) {
-                    print("Logged in successfully!");
+                    debugPrint("Logged in successfully!");
                   }
                 },
               ),

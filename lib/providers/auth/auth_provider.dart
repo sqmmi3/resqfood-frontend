@@ -22,7 +22,7 @@ class AuthProvider extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  Future<void> login(String username, String password) async {
+  Future<void> login(String username, String password, {VoidCallback? onSuccess}) async {
     _status = AuthStatus.loading;
     notifyListeners();
 
@@ -37,6 +37,10 @@ class AuthProvider extends ChangeNotifier {
           await _authService.updateDeviceToken(fcmToken);
         } catch (_) {
           debugPrint("Failed to send FCM token to backend.");
+        }
+
+        if (onSuccess != null) {
+          onSuccess();
         }
       }
     } catch (e) {
@@ -67,6 +71,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   void logout() async {
+    await _authService.logout();
     final fcmToken = await NotificationService.getDeviceToken();
     if (fcmToken != null) {
       try {
