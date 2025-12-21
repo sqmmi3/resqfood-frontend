@@ -62,9 +62,11 @@ class UserItemService {
 
       groupedItems.add(GroupedUserItem(
         itemName: name,
+        type: items.first.type,
         amount: itemList.length,
         earliestExpiration: effectiveDates.first,
-        isOpen: isOpen
+        isOpen: isOpen,
+        allInstances: itemList,
       ));
     });
 

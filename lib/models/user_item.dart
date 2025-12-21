@@ -6,6 +6,7 @@ class UserItem {
   final DateTime expirationDate;
   final DateTime? openedDate;
   final int? openedRule;
+  final String? description;
 
   UserItem({
     required this.id,
@@ -15,6 +16,7 @@ class UserItem {
     required this.expirationDate,
     this.openedDate,
     this.openedRule,
+    this.description,
   });
 
   factory UserItem.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class UserItem {
       expirationDate: DateTime.parse(json['expirationDate']),
       openedDate: json['openedDate'] != null ? DateTime.parse(json['openedDate']) : null,
       openedRule: json['openedRule'],
+      description: json['description'],
     );
   }
 }

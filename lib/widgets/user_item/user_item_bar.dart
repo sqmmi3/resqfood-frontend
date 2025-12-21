@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/grouped_user_item.dart';
+import 'package:frontend/screens/items/item_details_screen.dart';
 import 'package:intl/intl.dart';
 
 class UserItemBar extends StatelessWidget {
@@ -17,7 +18,12 @@ class UserItemBar extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: () {
-        // TODO
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ItemDetailsScreen(itemName: groupedItem.itemName)
+          ),
+        );
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),

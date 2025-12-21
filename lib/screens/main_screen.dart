@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/home/home_page.dart';
+import 'package:frontend/screens/home/home_screen.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
 import 'package:frontend/widgets/nav/resqfood_bottomnavbar.dart';
 
