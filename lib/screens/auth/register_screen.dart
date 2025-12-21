@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/screens/auth/login_screen.dart';
 import 'package:frontend/widgets/auth/auth_header.dart';
-import 'package:frontend/widgets/auth/resqfood_primary_button.dart';
-import 'package:frontend/widgets/auth/resqfood_text_field.dart';
+import 'package:frontend/widgets/resqfood_custom/resqfood_primary_button.dart';
+import 'package:frontend/widgets/resqfood_custom/resqfood_text_field.dart';
 import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
