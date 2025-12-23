@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class ResQFoodTextField extends StatelessWidget{
   final String label;
+  final String? defaultValue;
   final bool obscure;
   final bool showToggle;
   final bool obscureValue;
@@ -9,10 +10,13 @@ class ResQFoodTextField extends StatelessWidget{
   final TextEditingController? controller;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   const ResQFoodTextField({
     super.key,
     required this.label,
+    this.defaultValue,
     this.obscure = false,
     this.showToggle = false,
     this.obscureValue = false,
@@ -20,6 +24,8 @@ class ResQFoodTextField extends StatelessWidget{
     this.controller,
     this.validator,
     this.onChanged,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -29,10 +35,16 @@ class ResQFoodTextField extends StatelessWidget{
       obscureText: obscure && obscureValue,
       validator: validator,
       onChanged: onChanged,
+      readOnly: readOnly,
+      onTap: onTap,
       cursorColor: Colors.green,
       decoration: InputDecoration(
-        hintText: label,
-        floatingLabelBehavior: FloatingLabelBehavior.never,
+        labelText: label,
+        hintText: (defaultValue != null && defaultValue!.isNotEmpty)
+          ? defaultValue
+          : "Enter $label",
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        floatingLabelStyle: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
         contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
         labelStyle: const TextStyle(color: Colors.black54),
         enabledBorder: OutlineInputBorder(
@@ -58,7 +70,9 @@ class ResQFoodTextField extends StatelessWidget{
                 ),
                 onPressed: onToggle,
               )
-            : null,
+            : (readOnly && onTap != null)
+              ? const Icon(Icons.calendar_today, color: Colors.black54, size: 14)
+              : null,
       ),
     );
   }

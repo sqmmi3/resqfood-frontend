@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/models/grouped_user_item.dart';
 import 'package:frontend/models/user_item.dart';
@@ -88,7 +89,9 @@ class UserItemService {
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception("Failed to sync items with server");
+      debugPrint("SERVER ERROR STATUS: ${response.statusCode}");
+      debugPrint("SERVER ERROR BODY: ${response.body}");
+      throw Exception("Server error: ${response.body}");
     }
   }
 

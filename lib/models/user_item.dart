@@ -1,6 +1,6 @@
 class UserItem {
   final int? id;
-  final int itemId;
+  final int? itemId;
   final String itemName;
   final String type;
   final DateTime expirationDate;
@@ -10,7 +10,7 @@ class UserItem {
 
   UserItem({
     this.id,
-    required this.itemId,
+    this.itemId,
     required this.itemName,
     required this.type,
     required this.expirationDate,

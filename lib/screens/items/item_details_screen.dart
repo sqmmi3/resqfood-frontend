@@ -50,7 +50,7 @@ class ItemDetailsScreen extends StatelessWidget {
           child: Column(
             children: [
               Align(
-                alignment: Alignment.centerLeft,
+                alignment: Alignment.topLeft,
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8, top: 8),
                   child: TextButton.icon(
