@@ -14,7 +14,7 @@ class _MainScreenState extends State<MainScreen>{
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    HomePage(),
+    HomeScreen(),
   ];
 
   @override
@@ -32,7 +32,7 @@ class _MainScreenState extends State<MainScreen>{
         },
       ),
       body: Padding(
-        padding: const EdgeInsets.only(top: 16),
+        padding: const EdgeInsets.only(top: 0),
         child: _screens[_currentIndex],
       ),
       bottomNavigationBar: ResQFoodBottomNavBar(

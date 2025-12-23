@@ -84,7 +84,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Align(
-              alignment: Alignment.centerLeft,
+              alignment: Alignment.topLeft,
               child: Padding(
                 padding: const EdgeInsets.only(left: 8, top: 8),
                 child: TextButton.icon(
@@ -172,7 +172,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
     );
   }
 
-  Widget _buildEditField(String label, TextEditingController controller, {bool hasArrows = false}) {
+  Widget _buildEditField(String label, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -181,7 +181,6 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
           controller: controller,
           decoration: InputDecoration(
             border: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-            suffixIcon: hasArrows ? const Icon(Icons.unfold_more, color: Colors.black) : null,
           ),
         ),
         const SizedBox(height: 4),
