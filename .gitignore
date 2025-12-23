@@ -1,5 +1,3 @@
-.gitignore
-
 # Miscellaneous
 *.class
 *.log
@@ -46,3 +44,78 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Flutter/Dart
+.dart_tool/
+.buildlog/
+.packages
+pubspec.lock
+.flutter-plugins
+.flutter-plugins-dependencies
+.generated/
+.flutter-versions
+.flutter-plugins
+.idea/
+.vscode/
+
+# Android
+android/.gradle/
+android/app/google-services.json
+android/app/build/
+android/app/**/*.iml
+android/local.properties
+
+# iOS
+ios/Flutter/Flutter.podspec
+ios/Pods/
+ios/Runner/GeneratedPluginRegistrant.*
+ios/Runner/Info.plist
+ios/Runner.xcworkspace/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/.symlinks/
+ios/Podfile.lock
+ios/Podfile.local
+ios/build/
+ios/Flutter/FlutterPluginRegistrant.*
+
+# macOS
+macos/Flutter/GeneratedPluginRegistrant.swift
+macos/Pods/
+macos/Runner.xcworkspace/
+macos/Flutter/ephemeral/
+macos/Flutter/FlutterPluginRegistrant.*
+
+
+# Windows
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugins.cmake
+windows/Flutter/ephemeral/
+windows/build/
+
+# Linux
+linux/flutter/ephemeral/
+linux/build/
+
+# Firebase
+lib/firebase_options.dart
+firebase.json
+
+# Editor-specific
+*.iml
+*.ipr
+*.iws
+.idea/
+*.swp
+*.swo
+*.DS_Store
+
+# Logs
+*.log
+
+# Misc
+*.lock
+*.tmp
+*.bak
+*.orig
