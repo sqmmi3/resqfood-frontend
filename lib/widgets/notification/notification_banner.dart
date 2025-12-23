@@ -52,10 +52,10 @@ class _NotificationBannerState extends State<NotificationBanner> {
         child: Material(
           color: Colors.transparent,
           child: Container(
-            margin: const EdgeInsets.all(8),
+            margin: const EdgeInsets.all(2),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.green,
+              color: Colors.green[100],
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
@@ -65,24 +65,38 @@ class _NotificationBannerState extends State<NotificationBanner> {
                 ),
               ],
             ),
-            child: Column(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  _title ?? '',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+                Image.asset(
+                  'assets/logo/resqfood_logo_notext.png',
+                  width: 64,
+                  height: 64,
                 ),
-                if (_body != null)
-                  Text(
-                    _body!,
-                    style: const TextStyle(color: Colors.white),
-                  )
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        _title ?? '',
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      if (_body != null)
+                        Text(
+                          _body!,
+                          style: const TextStyle(color: Colors.black),
+                        )
+                    ],
+                  ),
+                )
               ],
-            ),
+            ) 
           ),
         ),
       ),

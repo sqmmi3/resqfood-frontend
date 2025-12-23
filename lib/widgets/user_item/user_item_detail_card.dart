@@ -29,7 +29,7 @@ class UserItemDetailCard extends StatelessWidget {
 
         _buildInstanceField("Expiration date", dateformat.format(userItem.expirationDate)),
         _buildInstanceField("Opened date (opt)", userItem.openedDate != null ? dateformat.format(userItem.openedDate!) : "Unopened"),
-        _buildInstanceFieldWithIcon("Opened rule (opt)", userItem.openedRule != null ? "${userItem.openedRule} days" : "0 days"),
+        _buildInstanceField("Opened rule (opt)", userItem.openedRule != null ? "${userItem.openedRule} days" : "0 days"),
 
         const Text("Description (opt)", style: TextStyle(fontSize: 16)),
         const SizedBox(height: 8),
@@ -79,26 +79,6 @@ class UserItemDetailCard extends StatelessWidget {
           Text(label, style: const TextStyle(fontSize: 16)),
           const SizedBox(height: 4),
           Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-          const Divider(color: Colors.black, thickness: 1.2),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInstanceFieldWithIcon(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: const TextStyle(fontSize: 16)),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300)),
-              const Icon(Icons.unfold_more, size: 18),
-            ],
-          ),
           const Divider(color: Colors.black, thickness: 1.2),
         ],
       ),

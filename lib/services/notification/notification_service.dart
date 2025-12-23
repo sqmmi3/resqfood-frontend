@@ -20,7 +20,7 @@ class NotificationService {
     );
 
     const AndroidInitializationSettings androidInit =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
+      AndroidInitializationSettings('ic_notification');
 
     const InitializationSettings initSettings =
       InitializationSettings(android: androidInit);
@@ -51,8 +51,10 @@ class NotificationService {
             android: AndroidNotificationDetails(
               'default_channel',
               'General Notification',
-              importance: Importance.high,
+              importance: Importance.max,
               priority: Priority.high,
+              icon: 'ic_notification',
+              largeIcon: DrawableResourceAndroidBitmap('ic_notification'),
             ),
           ),
         );

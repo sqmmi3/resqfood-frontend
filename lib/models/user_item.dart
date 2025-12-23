@@ -1,5 +1,5 @@
 class UserItem {
-  final int id;
+  final int? id;
   final int itemId;
   final String itemName;
   final String type;
@@ -9,7 +9,7 @@ class UserItem {
   final String? description;
 
   UserItem({
-    required this.id,
+    this.id,
     required this.itemId,
     required this.itemName,
     required this.type,
@@ -31,4 +31,15 @@ class UserItem {
       description: json['description'],
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'itemId': itemId,
+    'itemName': itemName,
+    'type': type,
+    'expirationDate': expirationDate.toIso8601String().split('T')[0],
+    'openedDate': openedDate?.toIso8601String().split('T')[0],
+    'openedRule': openedRule,
+    'description': description,
+  };
 }
