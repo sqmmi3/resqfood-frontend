@@ -47,9 +47,9 @@
 	<true/>
 	<key>FirebaseMessagingAutoInitEnabled</key>
 	<true/>
-	<key>UIApplicationExitOnSuspend<key/>
+	<key>UIApplicationExitOnSuspend</key>
 	<false/>
-	<key>NSUserTrackingUsageDescription<key/>
-	<string>This is used to deliver notifications tailored for you.<string/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This is used to deliver notifications tailored for you.</string>
 </dict>
 </plist>
