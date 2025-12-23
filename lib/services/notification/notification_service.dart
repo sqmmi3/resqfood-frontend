@@ -7,10 +7,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:frontend/firebase_options.dart';
 
 class NotificationService {
-  static final FlutterLocalNotificationsPlugin _localNotifications = 
-    FlutterLocalNotificationsPlugin();
+  static final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
 
-  static Stream<RemoteMessage> get foregroundStream => FirebaseMessaging.onMessage;
+  static Stream<RemoteMessage> get foregroundStream =>
+      FirebaseMessaging.onMessage;
 
   static Future<void> initialize() async {
     await FirebaseMessaging.instance.requestPermission(
@@ -20,10 +21,18 @@ class NotificationService {
     );
 
     const AndroidInitializationSettings androidInit =
-      AndroidInitializationSettings('ic_notification');
+        AndroidInitializationSettings('ic_notification');
 
-    const InitializationSettings initSettings =
-      InitializationSettings(android: androidInit);
+    const DarwinInitializationSettings iOSInit = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+
+    const InitializationSettings initSettings = InitializationSettings(
+      android: androidInit,
+      iOS: iOSInit,
+    );
 
     await _localNotifications.initialize(initSettings);
 
@@ -35,9 +44,10 @@ class NotificationService {
     );
 
     await _localNotifications
-      .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.createNotificationChannel(channel);
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final notification = message.notification;
@@ -56,6 +66,11 @@ class NotificationService {
               icon: 'ic_notification',
               largeIcon: DrawableResourceAndroidBitmap('ic_notification'),
             ),
+            iOS: DarwinNotificationDetails(
+              presentAlert: true,
+              presentBadge: true,
+              presentSound: true,
+            ),
           ),
         );
       }
@@ -73,9 +88,7 @@ class NotificationService {
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   debugPrint("Background message: ${message.notification?.title}");
 }
