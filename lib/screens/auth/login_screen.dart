@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/screens/auth/register_screen.dart';
@@ -39,7 +40,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: 200,
               ),
 
-              const SizedBox(height: 20),
+              DefaultTextStyle(
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                  letterSpacing: 8,
+                ),
+                child: AnimatedTextKit(
+                  animatedTexts: [
+                    TypewriterAnimatedText(
+                      'RESCUE YOUR FOOD!',
+                      speed: const Duration(milliseconds: 150),
+                    ),
+                  ],
+                  pause: const Duration(milliseconds: 1000),
+                  isRepeatingAnimation: true,
+                  repeatForever: true,
+                  displayFullTextOnTap: true,
+                  stopPauseOnTap: true,
+                )
+              ),
+
+              const SizedBox(height: 60),
 
               const AuthHeader(
                 title: 'Welcome!',
@@ -104,19 +127,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     "Don't have an account yet?",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                   ),
-                  GestureDetector(
+                  InkWell(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const RegisterScreen()),
                       );
                     },
-                    child: const Text(
-                      " Sign up",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: Colors.green,
+                    borderRadius: BorderRadius.circular(4),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+                      child: Text(
+                        "Sign up",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: Colors.green,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.green,
+                          decorationThickness: 2,
+                        ),
                       ),
                     ),
                   )

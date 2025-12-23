@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 
 class AuthHeader extends StatelessWidget {
@@ -14,14 +15,40 @@ class AuthHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-        ),
+        DefaultTextStyle(
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                  letterSpacing: 2,
+                ),
+                child: AnimatedTextKit(
+                  animatedTexts: [
+                    TypewriterAnimatedText(
+                      title,
+                      speed: const Duration(milliseconds: 150),
+                    ),
+                  ],
+                  isRepeatingAnimation: false,
+                )
+              ),
         const SizedBox(height: 5),
-        Text(
-          subtitle,
-          style: const TextStyle(fontSize: 18),
+        DefaultTextStyle(
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.normal,
+            color: Colors.black,
+            letterSpacing: 2,
+          ),
+          child: AnimatedTextKit(
+            animatedTexts: [
+              TypewriterAnimatedText(
+                subtitle,
+                speed: const Duration(milliseconds: 150),
+              ),
+            ],
+            isRepeatingAnimation: false,
+          )
         ),
       ],
     );
