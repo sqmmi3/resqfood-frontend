@@ -14,71 +14,75 @@ class NotificationService {
       FirebaseMessaging.onMessage;
 
   static Future<void> initialize() async {
-    await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    try {
+      await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
-    const AndroidInitializationSettings androidInit =
-        AndroidInitializationSettings('ic_notification');
+      const AndroidInitializationSettings androidInit =
+          AndroidInitializationSettings('ic_notification');
 
-    const DarwinInitializationSettings iOSInit = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
+      const DarwinInitializationSettings iOSInit = DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
 
-    const InitializationSettings initSettings = InitializationSettings(
-      android: androidInit,
-      iOS: iOSInit,
-    );
+      const InitializationSettings initSettings = InitializationSettings(
+        android: androidInit,
+        iOS: iOSInit,
+      );
 
-    await _localNotifications.initialize(initSettings);
+      await _localNotifications.initialize(initSettings);
 
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'default_channel',
-      'General Notifications',
-      description: 'Notification channel for app alerts',
-      importance: Importance.high,
-    );
+      const AndroidNotificationChannel channel = AndroidNotificationChannel(
+        'default_channel',
+        'General Notifications',
+        description: 'Notification channel for app alerts',
+        importance: Importance.high,
+      );
 
-    await _localNotifications
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.createNotificationChannel(channel);
+      await _localNotifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.createNotificationChannel(channel);
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      final notification = message.notification;
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        final notification = message.notification;
 
-      if (notification != null) {
-        _localNotifications.show(
-          Random().nextInt(100000),
-          notification.title,
-          notification.body,
-          const NotificationDetails(
-            android: AndroidNotificationDetails(
-              'default_channel',
-              'General Notification',
-              importance: Importance.max,
-              priority: Priority.high,
-              icon: 'ic_notification',
-              largeIcon: DrawableResourceAndroidBitmap('ic_notification'),
+        if (notification != null) {
+          _localNotifications.show(
+            Random().nextInt(100000),
+            notification.title,
+            notification.body,
+            const NotificationDetails(
+              android: AndroidNotificationDetails(
+                'default_channel',
+                'General Notification',
+                importance: Importance.max,
+                priority: Priority.high,
+                icon: 'ic_notification',
+                largeIcon: DrawableResourceAndroidBitmap('ic_notification'),
+              ),
+              iOS: DarwinNotificationDetails(
+                presentAlert: true,
+                presentBadge: true,
+                presentSound: true,
+              ),
             ),
-            iOS: DarwinNotificationDetails(
-              presentAlert: true,
-              presentBadge: true,
-              presentSound: true,
-            ),
-          ),
-        );
-      }
-    });
+          );
+        }
+      });
 
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      debugPrint("📬 Notification opened: ${message.notification?.title}");
-    });
+      FirebaseMessaging.onMessageOpenedApp.listen((message) {
+        debugPrint("📬 Notification opened: ${message.notification?.title}");
+      });
+    } catch (e) {
+      debugPrint("Error initializing notifications: $e");
+    }
   }
 
   static Future<String?> getDeviceToken() async {
