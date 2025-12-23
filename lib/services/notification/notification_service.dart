@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -86,6 +87,14 @@ class NotificationService {
   }
 
   static Future<String?> getDeviceToken() async {
+    // If we are on iOS, return null immediately to avoid the crash.
+    // (Since we don't have the Push Notification capability enabled)
+    if (Platform.isIOS) {
+      debugPrint("🍎 Skipped getToken() on iOS (No Push Capability)");
+      return null;
+    }
+
+    // On Android, this will still work fine
     return await FirebaseMessaging.instance.getToken();
   }
 }
