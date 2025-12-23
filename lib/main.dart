@@ -56,10 +56,18 @@ class ResQFoodApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       builder: (context, child) {
+        final isLoading = context.watch<UserItemProvider>().loading;
         return Stack(
           children: [
             child!,
             const NotificationBanner(),
+            if (isLoading)
+              Container(
+                color: Colors.black26,
+                child: const Center(
+                  child: CircularProgressIndicator(color: Colors.green),
+                ),
+              )
           ],
         );
       },

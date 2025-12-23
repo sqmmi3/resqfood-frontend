@@ -74,4 +74,37 @@ class UserItemService {
 
     return groupedItems;
   }
+
+  Future<void> saveUserItemBatch(List<UserItem> items) async {
+    final token = await AuthService.getStoredToken();
+
+    final response = await http.put(
+      Uri.parse("$baseUrl/user-items/batch"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      },
+      body: jsonEncode(items.map((i) => i.toJson()).toList()),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception("Failed to sync items with server");
+    }
+  }
+
+  Future<void> deleteUserItem(int id) async {
+    final token = await AuthService.getStoredToken();
+    
+    final response = await http.delete(
+      Uri.parse("$baseUrl/user-items/$id"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      },
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception("Failed to delete item from server");
+    }
+  }
 }

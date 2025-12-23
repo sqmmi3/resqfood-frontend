@@ -43,7 +43,7 @@ class UserItemBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
               decoration: BoxDecoration(
                 color: Colors.green.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(50),
@@ -51,14 +51,14 @@ class UserItemBar extends StatelessWidget {
               child: Text(
                 groupedItem.amount.toString(),
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 12,
                   color: Colors.black,
                   fontWeight: FontWeight.bold
                 ),
               ),
             ),
 
-            const SizedBox(width: 14),
+            const SizedBox(width: 10),
 
             Text(
               groupedItem.itemName,
@@ -78,7 +78,7 @@ class UserItemBar extends StatelessWidget {
                     ? "$daysLeft days left!"
                     : dateFormat.format(groupedItem.earliestExpiration),
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 12,
                       fontWeight: isExpired ? FontWeight.bold : (daysLeft <= 7 ? FontWeight.w600 : FontWeight.w400),
                       color: isExpired ? Colors.red : (daysLeft <= 3 ? Colors.red.shade700 : (daysLeft <= 5 ? Colors.orange.shade700 : (daysLeft <= 7 ? Colors.grey.shade900 : Colors.black))),
                     ),
@@ -90,14 +90,14 @@ class UserItemBar extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.inventory_2_rounded,
-                        size: 14,
+                        size: 10,
                         color: Colors.orange.shade700,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         "Opened",
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 10,
                           fontStyle: FontStyle.italic,
                           color: Colors.orange.shade700,
                         ),
