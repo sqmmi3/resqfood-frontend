@@ -75,8 +75,8 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
                 padding: const EdgeInsets.only(left: 8, top: 8),
                 child: TextButton.icon(
                   onPressed: () => { Navigator.pop(context) },
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  label: const Text("Go back", style: TextStyle(color: Colors.black)),
+                  icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+                  label: Text("Go back", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                 ),
               ),
             ),
@@ -126,6 +126,7 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
   }
 
   Widget _buildCategoryDropDown() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -134,32 +135,32 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
         DropdownButtonFormField<String>(
           key: ValueKey(_selectedCategory),
           hint: const Text("Select a category"),
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+          icon: Icon(Icons.arrow_drop_down, color: colorScheme.onSurface),
           items: _categories.map((category) => DropdownMenuItem(value: category, child: Text(category.replaceAll('_', ' ')))).toList(),
           onChanged: (value) => setState(() => _selectedCategory = value),
           decoration:  InputDecoration(
             labelText: "Product category",
             floatingLabelBehavior: FloatingLabelBehavior.auto,
-            floatingLabelStyle: const TextStyle(
-              color: Colors.green,
+            floatingLabelStyle: TextStyle(
+              color: colorScheme.primary,
               fontWeight: FontWeight.bold,
             ),
-            labelStyle: const TextStyle(color: Colors.black54),
+            labelStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.6)),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: const BorderSide(color: Colors.grey, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: Colors.green, width: 1),
+              borderSide: BorderSide(color: colorScheme.primary, width: 1),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.red, width: 1),
+              borderSide: BorderSide(color: colorScheme.error, width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.red, width: 2)
+              borderSide: BorderSide(color: colorScheme.error, width: 2)
             ),
           ),
         ),
@@ -190,21 +191,6 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.black,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: Colors.black),
-            ),
-          ),
-          child: child!
-        );
-      },
     );
 
     if (picked != null) {

@@ -15,11 +15,7 @@ class ResQFoodBottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
-      backgroundColor: Colors.white,
-      selectedItemColor: Colors.green,
-      unselectedItemColor: Colors.grey.shade600,
       showUnselectedLabels: true,
-      type: BottomNavigationBarType.fixed,
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),

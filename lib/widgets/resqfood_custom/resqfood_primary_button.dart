@@ -14,13 +14,15 @@ class ResQFoodPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: disabled ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white,
-          backgroundColor: disabled ? Colors.grey : Colors.green,
+          foregroundColor: colorScheme.onPrimary,
+          backgroundColor: disabled ? Colors.grey : colorScheme.primary,
           padding: EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15)

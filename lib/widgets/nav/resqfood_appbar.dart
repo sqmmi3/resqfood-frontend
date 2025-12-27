@@ -17,28 +17,30 @@ class ResQFoodAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return AppBar(
-      backgroundColor: Colors.white,
       elevation: 2,
       leading: IconButton(
-        icon: const Icon(Icons.menu, color: Colors.black),
+        icon: const Icon(Icons.menu),
         onPressed: onMenuTap,
       ),
       title: SizedBox(
-        height: 80,
+        height: 60,
         child: Image.asset(
           "assets/logo/resqfood_logo_notext.png",
           fit: BoxFit.contain,
+          color: isDarkMode ? null : Colors.white,
         ),
       ),
       centerTitle: true,
       actions: [
         IconButton(
-          icon: const Icon(Icons.notifications_none, color: Colors.black),
+          icon: const Icon(Icons.notifications_none),
           onPressed: onNotificationTap,
         ),
         IconButton(
-          icon: const Icon(Icons.account_circle, color: Colors.black),
+          icon: const Icon(Icons.account_circle),
           onPressed: onUserTap,
         ),
         const SizedBox(width: 8),

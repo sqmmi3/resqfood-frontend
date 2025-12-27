@@ -68,7 +68,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
@@ -82,10 +81,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
 
               DefaultTextStyle(
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: Theme.of(context).colorScheme.primary,
                   letterSpacing: 8,
                 ),
                 child: AnimatedTextKit(
@@ -163,7 +162,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         padding: const EdgeInsets.only(top: 10),
                         child: Text(
                           auth.errorMessage ?? "Registration failed",
-                          style: const TextStyle(color: Colors.red, fontSize: 15),
+                          style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 15),
                         ),
                       ),
                     
@@ -202,9 +201,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           'Already have an account?',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
                         ),
                         InkWell(
                           onTap: () {
@@ -221,9 +220,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
-                                color: Colors.green,
+                                color: Theme.of(context).colorScheme.primary,
                                 decoration: TextDecoration.underline,
-                                decorationColor: Colors.green,
+                                decorationColor: Theme.of(context).colorScheme.primary,
                                 decorationThickness: 2,
                               ),
                             ),

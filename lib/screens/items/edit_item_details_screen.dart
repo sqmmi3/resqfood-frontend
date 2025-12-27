@@ -89,8 +89,8 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                 padding: const EdgeInsets.only(left: 8, top: 8),
                 child: TextButton.icon(
                   onPressed: () => {Navigator.pop(context)},
-                  icon: const Icon(Icons.arrow_back, color: Colors.black,),
-                  label: const Text("Go back", style: TextStyle(color: Colors.black)),
+                  icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface,),
+                  label: Text("Go back", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                 ),
               ),
             ),
@@ -139,7 +139,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                             });
                           }
                         },
-                        child: const Text("Remove this instance", style: TextStyle(color: Colors.red, fontSize: 12))),
+                        child: Text("Remove this instance", style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12))),
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -149,8 +149,8 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () => Navigator.pop(context),
-                          style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.black), padding: const EdgeInsets.symmetric(vertical: 15)),
-                          child: const Text("Cancel", style: TextStyle(color: Colors.black)),
+                          style: OutlinedButton.styleFrom(side: BorderSide(color: Theme.of(context).colorScheme.onSurface), padding: const EdgeInsets.symmetric(vertical: 15)),
+                          child: Text("Cancel", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                         ),
                       ),
                       const SizedBox(width: 15),
@@ -180,7 +180,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
         TextField(
           controller: controller,
           decoration: InputDecoration(
-            border: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+            border: UnderlineInputBorder(borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface)),
           ),
         ),
         const SizedBox(height: 4),
@@ -212,10 +212,10 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
               _categoryController.text = newValue!;
             });
           },
-          decoration: const InputDecoration(
-            border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+          decoration: InputDecoration(
+            border: UnderlineInputBorder(borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface)),
           ),
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+          icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurface),
           hint: const Text("Select a category"),
         ),
         const SizedBox(height: 10),
@@ -240,7 +240,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
             )
           ],
         ),
-        const Divider(color: Colors.black, thickness: 1),
+        Divider(color: Theme.of(context).dividerColor, thickness: 1),
         const SizedBox(height: 4)
       ],
     );
@@ -254,7 +254,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
         const SizedBox(height: 8),
         Container(
           height: 120,
-          decoration: BoxDecoration(border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(border: Border.all(color: Theme.of(context).dividerColor), borderRadius: BorderRadius.circular(12)),
           padding: const EdgeInsets.all(12),
           child: TextField(
             controller: controller,
@@ -272,21 +272,6 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.black,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: Colors.black),
-            ),
-          ),
-          child: child!
-        );
-      },
     );
 
     if (picked != null) {

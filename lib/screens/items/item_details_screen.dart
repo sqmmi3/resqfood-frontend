@@ -55,8 +55,8 @@ class ItemDetailsScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 8, top: 8),
                   child: TextButton.icon(
                     onPressed: () => {Navigator.pop(context)},
-                    icon: const Icon(Icons.arrow_back, color: Colors.black,),
-                    label: const Text("Go back", style: TextStyle(color: Colors.black)),
+                    icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface,),
+                    label: Text("Go back", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                   ),
                 ),
               ),
@@ -70,9 +70,9 @@ class ItemDetailsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
 
-                    _buildCommonField("Name", groupedItem.itemName),
-                    _buildCommonField("Category", groupedItem.type),
-                    _buildCommonField("Quantity", groupedItem.amount.toString()),
+                    _buildCommonField(context, "Name", groupedItem.itemName),
+                    _buildCommonField(context, "Category", groupedItem.type),
+                    _buildCommonField(context, "Quantity", groupedItem.amount.toString()),
                     
                     const SizedBox(height: 10),
 
@@ -98,7 +98,7 @@ class ItemDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCommonField(String label, String value) {
+  Widget _buildCommonField(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 5),
       child: Column(
@@ -106,7 +106,7 @@ class ItemDetailsScreen extends StatelessWidget {
         children: [
           Text(label, style: const TextStyle(fontSize: 16)),
           Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300)),
-          const Divider(color: Colors.black, thickness: 1),
+          Divider(color: Theme.of(context).dividerColor, thickness: 1),
         ],
       ),
     );
@@ -139,7 +139,7 @@ class ItemDetailsScreen extends StatelessWidget {
                 }
               }
             },
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            child: Text("Delete", style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
         ],
       ),

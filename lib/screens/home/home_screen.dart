@@ -67,12 +67,12 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 60,
             width: 60,
             child: FloatingActionButton(
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               shape: const CircleBorder(),
               onPressed: toggleMenu,
               child: Icon(
                 _isMenuOpen ? Icons.close : Icons.add,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onPrimary,
                 size: 30,
               ),
             ),
@@ -83,13 +83,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildExpansionMenu(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: 200,
       margin: const EdgeInsets.only(right: 50),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black, width: 1.5),
+        border: Border.all(color: colorScheme.outline, width: 1.5),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -97,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _menuItem("Barcode", () {
             // TODO
           }),
-          const Divider(height: 1, color: Colors.black),
+          Divider(height: 1, color: colorScheme.outline),
           _menuItem("Add Manually", () {
             toggleMenu();
             Navigator.push(
