@@ -175,6 +175,30 @@ class NotificationService {
       debugPrint("Error marking notification as read: $e");
     }
   }
+
+  static Future<void> deleteNotification(
+    int notificationId,
+    String jwtToken,
+  ) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/notifications/$notificationId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwtToken',
+        },
+      );
+
+      if (response.statusCode != 204 && response.statusCode != 200) {
+        throw Exception(
+          'Failed to delete notification: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      debugPrint("Error deleting notification $e");
+      rethrow;
+    }
+  }
 }
 
 @pragma('vm:entry-point')
