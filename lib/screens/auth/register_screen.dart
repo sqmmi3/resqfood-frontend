@@ -1,5 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/screens/auth/login_screen.dart';
 import 'package:frontend/widgets/auth/auth_header.dart';
@@ -66,6 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
+    final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -123,7 +125,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       onChanged: (_) => auth.resetError(),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
                     ResQFoodTextField(
                       label: 'Email',
@@ -132,7 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       onChanged: (_) => auth.resetError(),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
                     ResQFoodTextField(
                       label: 'Password',
@@ -145,7 +147,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       onChanged: (_) => auth.resetError(),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
                     ResQFoodTextField(
                       label: 'Confirm password',
@@ -208,6 +210,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         InkWell(
                           onTap: () {
+                            isHapticsEnabled ? HapticFeedback.lightImpact() : null;
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const LoginScreen()),

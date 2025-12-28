@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:frontend/providers/auth/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class ResQFoodAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onMenuTap;
@@ -17,12 +20,14 @@ class ResQFoodAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 2,
       leading: IconButton(
         icon: const Icon(Icons.menu, color: Colors.black),
-        onPressed: onMenuTap,
+        onPressed: () { onMenuTap!(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
       ),
       title: SizedBox(
         height: 80,
@@ -35,11 +40,11 @@ class ResQFoodAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           icon: const Icon(Icons.notifications_none, color: Colors.black),
-          onPressed: onNotificationTap,
+          onPressed: () { onNotificationTap!(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
         ),
         IconButton(
           icon: const Icon(Icons.account_circle, color: Colors.black),
-          onPressed: onUserTap,
+          onPressed: () { onUserTap!(); isHapticsEnabled ? HapticFeedback. lightImpact() : null; },
         ),
         const SizedBox(width: 8),
       ],

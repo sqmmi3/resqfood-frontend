@@ -6,6 +6,7 @@ import 'package:frontend/firebase_options.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
 import 'package:frontend/screens/auth/login_screen.dart';
+import 'package:frontend/screens/main_screen.dart';
 import 'package:frontend/services/auth/auth_service.dart';
 import 'package:frontend/services/notification/notification_service.dart';
 import 'package:frontend/widgets/notification/notification_banner.dart';
@@ -51,27 +52,54 @@ class ResQFoodApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+
     return MaterialApp(
+      showSemanticsDebugger: false,
       title: 'ResQFood',
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
+      themeMode: authProvider.themeMode,
+      theme: ThemeData(
+        brightness: Brightness.light,
+        primarySwatch: Colors.green,
+        scaffoldBackgroundColor: Colors.white
+      ),
+
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.green,
+        scaffoldBackgroundColor: Colors.black,
+      ),
       builder: (context, child) {
         final isLoading = context.watch<UserItemProvider>().loading;
-        return Stack(
-          children: [
-            child!,
-            const NotificationBanner(),
-            if (isLoading)
-              Container(
-                color: Colors.black26,
-                child: const Center(
-                  child: CircularProgressIndicator(color: Colors.green),
-                ),
-              )
-          ],
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(authProvider.fontSizeFactor),
+          ),
+          child: Stack(
+            children: [
+              child!,
+              const NotificationBanner(),
+              if (isLoading)
+                Container(
+                  color: authProvider.highContrast ? Colors.black.withValues(alpha: 0.7) : Colors.black26,
+                  child: Center(
+                    child: CircularProgressIndicator(color: authProvider.highContrast ? Colors.white : Colors.green, strokeWidth: authProvider.highContrast ? 6 : 4),
+                  ),
+                )
+            ],
+          ),
         );
       },
-      home: const LoginScreen(),
+      home: Consumer<AuthProvider>(
+        builder: (context, auth, _) {
+          if (auth.user == null) {
+            return const LoginScreen();
+          }
+          return const MainScreen();
+        }
+      )
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/models/user_item.dart';
+import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
 import 'package:frontend/widgets/message_dialog.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
@@ -53,7 +55,11 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final highContrast = context.watch<AuthProvider>().highContrast;
+    final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+
     return Scaffold(
+      backgroundColor: highContrast ? Colors.white : Colors.grey[50],
       appBar: ResQFoodAppBar(
         onMenuTap: () {
           
@@ -74,9 +80,9 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 8, top: 8),
                 child: TextButton.icon(
-                  onPressed: () => { Navigator.pop(context) },
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  label: const Text("Go back", style: TextStyle(color: Colors.black)),
+                  onPressed: () { Navigator.pop(context); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
+                  icon: Icon(Icons.arrow_back, color: highContrast ? Colors.black : Colors.green),
+                  label: Text("Go back", style: TextStyle(color: Colors.black, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
                 ),
               ),
             ),
@@ -85,21 +91,19 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(child: Text("Add Item", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28))),
-                  const SizedBox(height: 20),
-                  const Text("General Information", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20)),
-                  const SizedBox(height: 10),
-                  _buildAddField("Product name", _nameController),
-                  _buildCategoryDropDown(),
+                  Center(child: Text("Add Item", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32, color: highContrast ? Colors.black : Colors.green.shade800))),
+                  const SizedBox(height: 30),
+                  _buildSectionLabel("General Information", highContrast),
+                  _buildAddField("Product name", _nameController, highContrast),
+                  _buildCategoryDropDown(highContrast, isHapticsEnabled),
 
-                  const SizedBox(height: 20),
-                  const Text("Specific Information", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20)),
-                  const SizedBox(height: 10),
-                  _buildDateField("Expiry date", _expiryDateController),
-                  _buildAddField("Opened rule (opt)", _openedRuleController, defaultValue: "3 days"),
-                  _buildDescriptionField(),
+                  const SizedBox(height: 30),
+                  _buildSectionLabel("Specific Information", highContrast),
+                  _buildDateField("Expiry date", _expiryDateController, highContrast),
+                  _buildAddField("Opened rule (opt)", _openedRuleController, highContrast, defaultValue: "3 days"),
+                  _buildDescriptionField(highContrast, isHapticsEnabled),
                   ResQFoodPrimaryButton(text: "Add to Inventory", onPressed: _handleSave),
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 60),
                 ],
               ),
             ),
@@ -109,7 +113,20 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     );
   }
 
-  Widget _buildAddField(String label, TextEditingController controller, {String? defaultValue}) {
+  Widget _buildSectionLabel(String text, bool highContrast) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Text(text, 
+        style: TextStyle(
+          fontWeight: FontWeight.bold, 
+          fontSize: 20,
+          decoration: highContrast ? TextDecoration.underline : null,
+        )
+      ),
+    );
+  }
+
+  Widget _buildAddField(String label, TextEditingController controller, bool highContrast, {String? defaultValue}) {
     if (defaultValue != null && controller.text.isEmpty) {
       controller.text = defaultValue;
     }
@@ -117,49 +134,51 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 16)),
-        const SizedBox(height: 10),
+        Text(label, style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
+        const SizedBox(height: 20),
         ResQFoodTextField(label: label, defaultValue: defaultValue, controller: controller),
         const SizedBox(height: 10),
       ],
     );
   }
 
-  Widget _buildCategoryDropDown() {
+  Widget _buildCategoryDropDown(bool highContrast, bool isHapticsEnabled) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Category", style: TextStyle(fontSize: 16)),
-        const SizedBox(height: 10),
+        Text("Category", style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
+        const SizedBox(height: 20),
         DropdownButtonFormField<String>(
           key: ValueKey(_selectedCategory),
           hint: const Text("Select a category"),
+          style: TextStyle(color: Colors.black, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal),
           icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
           items: _categories.map((category) => DropdownMenuItem(value: category, child: Text(category.replaceAll('_', ' ')))).toList(),
+          onTap: () { isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
           onChanged: (value) => setState(() => _selectedCategory = value),
           decoration:  InputDecoration(
             labelText: "Product category",
-            floatingLabelBehavior: FloatingLabelBehavior.auto,
-            floatingLabelStyle: const TextStyle(
-              color: Colors.green,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            floatingLabelStyle: TextStyle(
+              color: highContrast ? Colors.black : Colors.green,
               fontWeight: FontWeight.bold,
             ),
-            labelStyle: const TextStyle(color: Colors.black54),
+            labelStyle: TextStyle(color: highContrast ? Colors.black : Colors.black54),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: Colors.grey, width: 1),
+              borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+              borderSide: BorderSide(color: highContrast ? Colors.black : Colors.grey, width: highContrast ? 2.0 : 1.0),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: Colors.green, width: 1),
+              borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+              borderSide: BorderSide(color: highContrast ? Colors.black : Colors.green, width: highContrast ? 3.0 : 2.0),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.red, width: 1),
+              borderRadius: BorderRadius.circular(highContrast? 8 : 15),
+              borderSide: BorderSide(color: highContrast? Colors.black : Colors.red, width: highContrast ? 2.5 : 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.red, width: 2)
+              borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+              borderSide: BorderSide(color: highContrast ? Colors.black : Colors.red, width: highContrast ? 3.0 : 2.0)
             ),
           ),
         ),
@@ -167,17 +186,17 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     );
   }
 
-  Widget _buildDateField(String label, TextEditingController controller) {
+  Widget _buildDateField(String label, TextEditingController controller, bool highContrast) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 16)),
-        const SizedBox(height: 10),
+        Text(label, style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
+        const SizedBox(height: 20),
         ResQFoodTextField(
           label: "Product expiry date",
           controller: controller,
           readOnly: true,
-          onTap: () => _selectDate(context, controller),
+          onTap: () { _selectDate(context, controller); },
         ),
         const SizedBox(height: 10),
       ],
@@ -214,10 +233,11 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     }
   }
 
-  Widget _buildDescriptionField() {
+  Widget _buildDescriptionField(bool highContrast, bool isHapticsEnabled) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text("Description", style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
         const SizedBox(height: 10),
         Stack(
           children: [
@@ -225,25 +245,25 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               controller: _descriptionController,
               maxLines: 4,
               maxLength: 128,
+              onTap: () { isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
               decoration: InputDecoration(
                 labelText: "Product description",
                 hintText: "Product description",
                 alignLabelWithHint: true,
-                floatingLabelBehavior: FloatingLabelBehavior.auto,
-                floatingLabelStyle: const TextStyle(
-                  color: Colors.green, 
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                floatingLabelStyle: TextStyle(
+                  color: highContrast ? Colors.black : Colors.green, 
                   fontWeight: FontWeight.bold
                 ),
-                labelStyle: const TextStyle(color: Colors.black54),
+                labelStyle: TextStyle(color: highContrast ? Colors.black : Colors.black54),
                 contentPadding: const EdgeInsets.fromLTRB(14, 18, 14, 30),
-                
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: Colors.grey, width: 1),
+                  borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+                  borderSide: BorderSide(color: highContrast? Colors.black : Colors.grey, width: highContrast ? 2.0 : 1.0),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: Colors.green, width: 1),
+                  borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+                  borderSide: BorderSide(color: highContrast ? Colors.black : Colors.green, width: highContrast ? 3.0 : 1.0),
                 ),
                 counterText: "",
               ),
@@ -253,10 +273,10 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               right: 14,
               child: Text(
                 "${_descriptionController.text.length}/128",
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w400,
+                style: TextStyle(
+                  color: highContrast ? Colors.black : Colors.grey,
+                  fontSize: highContrast ? 14 : 10,
+                  fontWeight: highContrast ? FontWeight.bold : FontWeight.w400,
                 ),
               ),
             ),
