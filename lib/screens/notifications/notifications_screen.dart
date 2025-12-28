@@ -44,6 +44,20 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
   }
 
+  void _markAllReadOnExit() async {
+    // Only send req if there is at least 1 notif
+    if (_notifications.any((n) => !n.isRead)) {
+      try {
+        final token = await AuthService.getStoredToken();
+        if (token == null) throw Exception("Not authenticated");
+
+        NotificationService.markAllAsRead(token);
+      } catch (e) {
+        debugPrint("Failed to mark all read on exit: $e");
+      }
+    }
+  }
+
   Future<void> _handleDelete(int index) async {
     final token = await AuthService.getStoredToken();
     if (token == null) throw Exception("Not authenticated");
@@ -134,9 +148,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Notifications"), centerTitle: true),
-      body: _buildBody(),
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          _markAllReadOnExit();
+        }
+      },
+
+      child: Scaffold(
+        appBar: AppBar(title: const Text("Notifications"), centerTitle: true),
+        body: _buildBody(),
+      ),
     );
   }
 
