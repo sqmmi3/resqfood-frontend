@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/grouped_user_item.dart';
+import 'package:frontend/providers/notification/notification_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
 import 'package:frontend/screens/items/edit_item_details_screen.dart';
+import 'package:frontend/screens/notifications/notifications_screen.dart';
 import 'package:frontend/widgets/message_dialog.dart';
 import 'package:frontend/widgets/resqfood_custom/resqfood_primary_button.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
@@ -16,6 +18,7 @@ class ItemDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userItemProvider = context.watch<UserItemProvider>();
+    final notificationProvider = context.watch<NotificationProvider>();
 
     final groupedItem = userItemProvider.items.firstWhere(
       (element) => element.itemName == itemName,
@@ -38,7 +41,13 @@ class ItemDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: ResQFoodAppBar(
         onMenuTap: () {},
-        onNotificationTap: () {},
+        onNotificationTap: () {
+          notificationProvider.setUnread(false);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationScreen()),
+          );
+        },
         onUserTap: () {},
       ),
       body: SingleChildScrollView(

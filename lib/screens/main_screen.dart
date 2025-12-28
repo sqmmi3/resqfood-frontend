@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/providers/notification/notification_provider.dart';
 import 'package:frontend/screens/home/home_screen.dart';
 import 'package:frontend/screens/notifications/notifications_screen.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
 import 'package:frontend/widgets/nav/resqfood_bottomnavbar.dart';
+import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -18,10 +20,14 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final notificationProvider = context.watch<NotificationProvider>();
+
     return Scaffold(
       appBar: ResQFoodAppBar(
+        hasUnreadNotifications: notificationProvider.hasUnread,
         onMenuTap: () {},
         onNotificationTap: () {
+          notificationProvider.setUnread(false);
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const NotificationScreen()),

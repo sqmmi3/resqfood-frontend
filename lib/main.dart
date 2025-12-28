@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/firebase_options.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
+import 'package:frontend/providers/notification/notification_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
 import 'package:frontend/screens/auth/login_screen.dart';
 import 'package:frontend/services/auth/auth_service.dart';
@@ -18,16 +19,14 @@ Future<void> main() async {
 
   await dotenv.load(fileName: '.env');
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   await NotificationService.initialize();
 
   final AuthService authService = AuthService();
-  
+
   FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
     await authService.updateDeviceToken(newToken);
   });
@@ -40,9 +39,10 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UserItemProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: const ResQFoodApp(),
-    )  
+    ),
   );
 }
 
@@ -67,7 +67,7 @@ class ResQFoodApp extends StatelessWidget {
                 child: const Center(
                   child: CircularProgressIndicator(color: Colors.green),
                 ),
-              )
+              ),
           ],
         );
       },

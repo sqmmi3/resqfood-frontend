@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/providers/notification/notification_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
 import 'package:frontend/screens/items/manual_add_item_screen.dart';
 import 'package:frontend/widgets/user_item/user_item_bar.dart';

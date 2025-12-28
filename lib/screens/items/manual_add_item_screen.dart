@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/user_item.dart';
+import 'package:frontend/providers/notification/notification_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
+import 'package:frontend/screens/notifications/notifications_screen.dart';
 import 'package:frontend/widgets/message_dialog.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
 import 'package:frontend/widgets/resqfood_custom/resqfood_primary_button.dart';
@@ -21,9 +23,19 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
   String? _selectedCategory;
 
   final List<String> _categories = [
-    'FRUIT', 'VEGETABLE', 'GRAIN', 'PROTEIN', 'DAIRY',
-    'SWEETS', 'BEVERAGE', 'READY_MEAL', 'SPICE',
-    'BAKING', 'FROZEN', 'CANNED', 'PANTRY'
+    'FRUIT',
+    'VEGETABLE',
+    'GRAIN',
+    'PROTEIN',
+    'DAIRY',
+    'SWEETS',
+    'BEVERAGE',
+    'READY_MEAL',
+    'SPICE',
+    'BAKING',
+    'FROZEN',
+    'CANNED',
+    'PANTRY',
   ];
 
   late TextEditingController _expiryDateController;
@@ -32,14 +44,14 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
 
   @override
   void initState() {
-   super.initState();
-   _nameController = TextEditingController();
-   _expiryDateController = TextEditingController();
-   _openedRuleController = TextEditingController();
-   _descriptionController = TextEditingController();
-   _descriptionController.addListener(() {
-    setState(() {});
-   });
+    super.initState();
+    _nameController = TextEditingController();
+    _expiryDateController = TextEditingController();
+    _openedRuleController = TextEditingController();
+    _descriptionController = TextEditingController();
+    _descriptionController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -53,19 +65,21 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final notificationProvider = context.watch<NotificationProvider>();
+
     return Scaffold(
       appBar: ResQFoodAppBar(
-        onMenuTap: () {
-          
-        },
+        onMenuTap: () {},
         onNotificationTap: () {
-          
+          notificationProvider.setUnread(false);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationScreen()),
+          );
         },
-        onUserTap: () {
-          
-        },
+        onUserTap: () {},
       ),
-      body: SingleChildScrollView( 
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -74,9 +88,12 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 8, top: 8),
                 child: TextButton.icon(
-                  onPressed: () => { Navigator.pop(context) },
+                  onPressed: () => {Navigator.pop(context)},
                   icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  label: const Text("Go back", style: TextStyle(color: Colors.black)),
+                  label: const Text(
+                    "Go back",
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               ),
             ),
@@ -85,31 +102,56 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(child: Text("Add Item", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28))),
+                  Center(
+                    child: Text(
+                      "Add Item",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 28,
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 20),
-                  const Text("General Information", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20)),
+                  const Text(
+                    "General Information",
+                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                  ),
                   const SizedBox(height: 10),
                   _buildAddField("Product name", _nameController),
                   _buildCategoryDropDown(),
 
                   const SizedBox(height: 20),
-                  const Text("Specific Information", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20)),
+                  const Text(
+                    "Specific Information",
+                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                  ),
                   const SizedBox(height: 10),
                   _buildDateField("Expiry date", _expiryDateController),
-                  _buildAddField("Opened rule (opt)", _openedRuleController, defaultValue: "3 days"),
+                  _buildAddField(
+                    "Opened rule (opt)",
+                    _openedRuleController,
+                    defaultValue: "3 days",
+                  ),
                   _buildDescriptionField(),
-                  ResQFoodPrimaryButton(text: "Add to Inventory", onPressed: _handleSave),
+                  ResQFoodPrimaryButton(
+                    text: "Add to Inventory",
+                    onPressed: _handleSave,
+                  ),
                   const SizedBox(height: 50),
                 ],
               ),
             ),
-          ]
-        )
-      )
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildAddField(String label, TextEditingController controller, {String? defaultValue}) {
+  Widget _buildAddField(
+    String label,
+    TextEditingController controller, {
+    String? defaultValue,
+  }) {
     if (defaultValue != null && controller.text.isEmpty) {
       controller.text = defaultValue;
     }
@@ -119,7 +161,11 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
       children: [
         Text(label, style: const TextStyle(fontSize: 16)),
         const SizedBox(height: 10),
-        ResQFoodTextField(label: label, defaultValue: defaultValue, controller: controller),
+        ResQFoodTextField(
+          label: label,
+          defaultValue: defaultValue,
+          controller: controller,
+        ),
         const SizedBox(height: 10),
       ],
     );
@@ -135,9 +181,16 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
           key: ValueKey(_selectedCategory),
           hint: const Text("Select a category"),
           icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
-          items: _categories.map((category) => DropdownMenuItem(value: category, child: Text(category.replaceAll('_', ' ')))).toList(),
+          items: _categories
+              .map(
+                (category) => DropdownMenuItem(
+                  value: category,
+                  child: Text(category.replaceAll('_', ' ')),
+                ),
+              )
+              .toList(),
           onChanged: (value) => setState(() => _selectedCategory = value),
-          decoration:  InputDecoration(
+          decoration: InputDecoration(
             labelText: "Product category",
             floatingLabelBehavior: FloatingLabelBehavior.auto,
             floatingLabelStyle: const TextStyle(
@@ -159,7 +212,7 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.red, width: 2)
+              borderSide: BorderSide(color: Colors.red, width: 2),
             ),
           ),
         ),
@@ -184,7 +237,10 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDate(
+    BuildContext context,
+    TextEditingController controller,
+  ) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -202,7 +258,7 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               style: TextButton.styleFrom(foregroundColor: Colors.black),
             ),
           ),
-          child: child!
+          child: child!,
         );
       },
     );
@@ -231,12 +287,12 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
                 alignLabelWithHint: true,
                 floatingLabelBehavior: FloatingLabelBehavior.auto,
                 floatingLabelStyle: const TextStyle(
-                  color: Colors.green, 
-                  fontWeight: FontWeight.bold
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
                 ),
                 labelStyle: const TextStyle(color: Colors.black54),
                 contentPadding: const EdgeInsets.fromLTRB(14, 18, 14, 30),
-                
+
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: const BorderSide(color: Colors.grey, width: 1),
@@ -276,7 +332,9 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
       final newItem = UserItem(
         itemName: _nameController.text.trim(),
         type: _selectedCategory!,
-        expirationDate: DateFormat('dd-MM-yyyy').parse(_expiryDateController.text),
+        expirationDate: DateFormat(
+          'dd-MM-yyyy',
+        ).parse(_expiryDateController.text),
         openedRule: rule,
         description: _descriptionController.text.trim(),
       );
@@ -287,7 +345,10 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
 
       if (mounted) {
         MessageDialog.show(context, message: "Item successfully added!");
-        Future.delayed(const Duration(milliseconds: 1000), () => Navigator.pop(context));
+        Future.delayed(
+          const Duration(milliseconds: 1000),
+          () => Navigator.pop(context),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -314,7 +375,9 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
       throw Exception("Expiry date is required.");
     }
 
-    DateTime expiry = DateFormat('dd-MM-yyyy').parse(_expiryDateController.text);
+    DateTime expiry = DateFormat(
+      'dd-MM-yyyy',
+    ).parse(_expiryDateController.text);
     if (expiry.isBefore(DateTime.now().subtract(const Duration(days: 1)))) {
       throw Exception("The expiry date cannot be in the past.");
     }

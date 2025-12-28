@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/grouped_user_item.dart';
 import 'package:frontend/models/user_item.dart';
+import 'package:frontend/providers/notification/notification_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
+import 'package:frontend/screens/notifications/notifications_screen.dart';
 import 'package:frontend/widgets/message_dialog.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
 import 'package:frontend/widgets/resqfood_custom/resqfood_primary_button.dart';
@@ -19,9 +21,19 @@ class EditItemDetailsScreen extends StatefulWidget {
 
 class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
   final List<String> _categories = [
-    'FRUIT', 'VEGETABLE', 'GRAIN', 'PROTEIN', 'DAIRY',
-    'SWEETS', 'BEVERAGE', 'READY_MEAL', 'SPICE',
-    'BAKING', 'FROZEN', 'CANNED', 'PANTRY'
+    'FRUIT',
+    'VEGETABLE',
+    'GRAIN',
+    'PROTEIN',
+    'DAIRY',
+    'SWEETS',
+    'BEVERAGE',
+    'READY_MEAL',
+    'SPICE',
+    'BAKING',
+    'FROZEN',
+    'CANNED',
+    'PANTRY',
   ];
 
   late TextEditingController _nameController;
@@ -36,8 +48,12 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.groupedUserItem.itemName);
-    _categoryController = TextEditingController(text: widget.groupedUserItem.type);
+    _nameController = TextEditingController(
+      text: widget.groupedUserItem.itemName,
+    );
+    _categoryController = TextEditingController(
+      text: widget.groupedUserItem.type,
+    );
     _quantity = widget.groupedUserItem.amount;
 
     for (var item in widget.groupedUserItem.allInstances) {
@@ -47,37 +63,63 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
 
   void _addInstanceControllers([UserItem? item]) {
     final dateformat = DateFormat('dd-MM-yyyy');
-    _expirationControllers.add(TextEditingController(text: item != null ? dateformat.format(item.expirationDate) : ''));
-    _openedDateControllers.add(TextEditingController(text: item?.openedDate != null ? dateformat.format(item!.openedDate!) : 'Unopened'));
-    _openedRuleControllers.add(TextEditingController(text: item?.openedRule != null ? "${item!.openedRule} days" : "3 days"));
-    _descriptionControllers.add(TextEditingController(text: item?.description ?? ''));
+    _expirationControllers.add(
+      TextEditingController(
+        text: item != null ? dateformat.format(item.expirationDate) : '',
+      ),
+    );
+    _openedDateControllers.add(
+      TextEditingController(
+        text: item?.openedDate != null
+            ? dateformat.format(item!.openedDate!)
+            : 'Unopened',
+      ),
+    );
+    _openedRuleControllers.add(
+      TextEditingController(
+        text: item?.openedRule != null ? "${item!.openedRule} days" : "3 days",
+      ),
+    );
+    _descriptionControllers.add(
+      TextEditingController(text: item?.description ?? ''),
+    );
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _categoryController.dispose();
-    for (var c in _expirationControllers) { c.dispose(); }
-    for (var c in _openedDateControllers) { c.dispose(); }
-    for (var c in _openedRuleControllers) { c.dispose(); }
-    for (var c in _descriptionControllers) { c.dispose(); }
+    for (var c in _expirationControllers) {
+      c.dispose();
+    }
+    for (var c in _openedDateControllers) {
+      c.dispose();
+    }
+    for (var c in _openedRuleControllers) {
+      c.dispose();
+    }
+    for (var c in _descriptionControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final userItemProvider = context.watch<UserItemProvider>();
+    final notificationProvider = context.watch<NotificationProvider>();
+
     return Scaffold(
       appBar: ResQFoodAppBar(
-        onMenuTap: () {
-          
-        },
+        onMenuTap: () {},
         onNotificationTap: () {
-          
+          notificationProvider.setUnread(false);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationScreen()),
+          );
         },
-        onUserTap: () {
-          
-        },
+        onUserTap: () {},
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -89,17 +131,28 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                 padding: const EdgeInsets.only(left: 8, top: 8),
                 child: TextButton.icon(
                   onPressed: () => {Navigator.pop(context)},
-                  icon: const Icon(Icons.arrow_back, color: Colors.black,),
-                  label: const Text("Go back", style: TextStyle(color: Colors.black)),
+                  icon: const Icon(Icons.arrow_back, color: Colors.black),
+                  label: const Text(
+                    "Go back",
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start, 
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(child: Text(_nameController.text, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+                  Center(
+                    child: Text(
+                      _nameController.text,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 20),
 
                   _buildEditField("Name", _nameController),
@@ -110,11 +163,26 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                   const SizedBox(height: 10),
 
                   for (int i = 0; i < _quantity; i++) ...[
-                    Text("${_nameController.text} #${i + 1}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(
+                      "${_nameController.text} #${i + 1}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 10),
-                    _buildDateField("Expiration date", _expirationControllers[i]),
-                    _buildDateField("Opened date (opt)", _openedDateControllers[i]),
-                    _buildEditField("Opened rule (opt)", _openedRuleControllers[i]),
+                    _buildDateField(
+                      "Expiration date",
+                      _expirationControllers[i],
+                    ),
+                    _buildDateField(
+                      "Opened date (opt)",
+                      _openedDateControllers[i],
+                    ),
+                    _buildEditField(
+                      "Opened rule (opt)",
+                      _openedRuleControllers[i],
+                    ),
                     _buildDescriptionBox(_descriptionControllers[i]),
                     const SizedBox(height: 10),
                     Align(
@@ -122,12 +190,13 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                       child: TextButton(
                         onPressed: () {
                           if (i < widget.groupedUserItem.allInstances.length) {
-                            final instance = widget.groupedUserItem.allInstances[i];
+                            final instance =
+                                widget.groupedUserItem.allInstances[i];
                             _showDeleteConfirmation(
                               context,
                               userItemProvider,
                               instance.id!,
-                              "${_nameController.text} #${i + 1}"
+                              "${_nameController.text} #${i + 1}",
                             );
                           } else {
                             setState(() {
@@ -139,7 +208,11 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                             });
                           }
                         },
-                        child: const Text("Remove this instance", style: TextStyle(color: Colors.red, fontSize: 12))),
+                        child: const Text(
+                          "Remove this instance",
+                          style: TextStyle(color: Colors.red, fontSize: 12),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -149,23 +222,31 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () => Navigator.pop(context),
-                          style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.black), padding: const EdgeInsets.symmetric(vertical: 15)),
-                          child: const Text("Cancel", style: TextStyle(color: Colors.black)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.black),
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                          ),
+                          child: const Text(
+                            "Cancel",
+                            style: TextStyle(color: Colors.black),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 15),
                       Expanded(
                         child: ResQFoodPrimaryButton(
                           text: "Save",
-                          onPressed: () { _handleSave(); }
-                        )
+                          onPressed: () {
+                            _handleSave();
+                          },
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 50),
-                ]
-              )
-            )
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -180,7 +261,9 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
         TextField(
           controller: controller,
           decoration: InputDecoration(
-            border: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+            border: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.black),
+            ),
           ),
         ),
         const SizedBox(height: 4),
@@ -195,9 +278,9 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
         const Text("Category", style: TextStyle(fontSize: 16)),
         DropdownButtonFormField<String>(
           key: ValueKey(_categoryController.text),
-          initialValue: _categories.contains(_categoryController.text) 
-            ? _categoryController.text 
-            : null,
+          initialValue: _categories.contains(_categoryController.text)
+              ? _categoryController.text
+              : null,
           items: _categories.map((String category) {
             return DropdownMenuItem<String>(
               value: category,
@@ -213,7 +296,9 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
             });
           },
           decoration: const InputDecoration(
-            border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+            border: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.black),
+            ),
           ),
           icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
           hint: const Text("Select a category"),
@@ -234,14 +319,27 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
             Text("$_quantity", style: const TextStyle(fontSize: 14)),
             Column(
               children: [
-                GestureDetector(onTap: () => setState(() { _quantity++; _addInstanceControllers(); }), child: const Icon(Icons.keyboard_arrow_up)),
-                GestureDetector(onTap: () => setState(() { if (_quantity > 1) { _quantity--; } }), child: const Icon(Icons.keyboard_arrow_down)),
+                GestureDetector(
+                  onTap: () => setState(() {
+                    _quantity++;
+                    _addInstanceControllers();
+                  }),
+                  child: const Icon(Icons.keyboard_arrow_up),
+                ),
+                GestureDetector(
+                  onTap: () => setState(() {
+                    if (_quantity > 1) {
+                      _quantity--;
+                    }
+                  }),
+                  child: const Icon(Icons.keyboard_arrow_down),
+                ),
               ],
-            )
+            ),
           ],
         ),
         const Divider(color: Colors.black, thickness: 1),
-        const SizedBox(height: 4)
+        const SizedBox(height: 4),
       ],
     );
   }
@@ -254,7 +352,10 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
         const SizedBox(height: 8),
         Container(
           height: 120,
-          decoration: BoxDecoration(border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.black),
+            borderRadius: BorderRadius.circular(12),
+          ),
           padding: const EdgeInsets.all(12),
           child: TextField(
             controller: controller,
@@ -266,7 +367,10 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDate(
+    BuildContext context,
+    TextEditingController controller,
+  ) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -284,7 +388,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
               style: TextButton.styleFrom(foregroundColor: Colors.black),
             ),
           ),
-          child: child!
+          child: child!,
         );
       },
     );
@@ -306,11 +410,17 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
           readOnly: true,
           onTap: () => _selectDate(context, controller),
           decoration: const InputDecoration(
-            border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-            suffixIcon: Icon(Icons.calendar_today, color: Colors.black, size: 14),
+            border: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.black),
+            ),
+            suffixIcon: Icon(
+              Icons.calendar_today,
+              color: Colors.black,
+              size: 14,
+            ),
           ),
         ),
-        const SizedBox(height: 4)
+        const SizedBox(height: 4),
       ],
     );
   }
@@ -320,20 +430,28 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
 
     for (int i = 0; i < _quantity; i++) {
       final bool isExisting = i < widget.groupedUserItem.allInstances.length;
-      final int? existingId = isExisting ? widget.groupedUserItem.allInstances[i].id : null;
+      final int? existingId = isExisting
+          ? widget.groupedUserItem.allInstances[i].id
+          : null;
 
-      itemsToProcess.add(UserItem(
-        id: existingId,
-        itemId: widget.groupedUserItem.allInstances[0].itemId,
-        itemName: _nameController.text,
-        type: _categoryController.text,
-        expirationDate: DateFormat('dd-MM-yyyy').parse(_expirationControllers[i].text),
-        openedDate: _openedDateControllers[i].text == 'Unopened'
-            ? null
-            : DateFormat('dd-MM-yyyy').parse(_openedDateControllers[i].text),
-        openedRule: int.tryParse(_openedRuleControllers[i].text.split(' ')[0]),
-        description: _descriptionControllers[i].text,
-      ));
+      itemsToProcess.add(
+        UserItem(
+          id: existingId,
+          itemId: widget.groupedUserItem.allInstances[0].itemId,
+          itemName: _nameController.text,
+          type: _categoryController.text,
+          expirationDate: DateFormat(
+            'dd-MM-yyyy',
+          ).parse(_expirationControllers[i].text),
+          openedDate: _openedDateControllers[i].text == 'Unopened'
+              ? null
+              : DateFormat('dd-MM-yyyy').parse(_openedDateControllers[i].text),
+          openedRule: int.tryParse(
+            _openedRuleControllers[i].text.split(' ')[0],
+          ),
+          description: _descriptionControllers[i].text,
+        ),
+      );
     }
     try {
       await context.read<UserItemProvider>().saveBatch(itemsToProcess);
@@ -345,18 +463,25 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error saving: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error saving: $e")));
     }
   }
 
-  void _showDeleteConfirmation(BuildContext context, UserItemProvider provider, int id, String instanceTitle) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    UserItemProvider provider,
+    int id,
+    String instanceTitle,
+  ) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text("Delete $instanceTitle?"),
-        content: const Text("Are you sure you want to remove this specific instance?"),
+        content: const Text(
+          "Are you sure you want to remove this specific instance?",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
@@ -369,19 +494,29 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                 await provider.deleteInstance(id);
                 if (context.mounted) {
                   final updatedGroup = provider.items
-                    .where((e) => e.itemName == widget.groupedUserItem.itemName)
-                    .firstOrNull;
-                  
+                      .where(
+                        (e) => e.itemName == widget.groupedUserItem.itemName,
+                      )
+                      .firstOrNull;
+
                   if (updatedGroup == null || updatedGroup.amount == 0) {
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   } else {
                     setState(() {
                       _quantity = updatedGroup.amount;
 
-                      for (var c in _expirationControllers) { c.dispose(); }
-                      for (var c in _openedDateControllers) { c.dispose(); }
-                      for (var c in _openedRuleControllers) { c.dispose(); }
-                      for (var c in _descriptionControllers) { c.dispose(); }
+                      for (var c in _expirationControllers) {
+                        c.dispose();
+                      }
+                      for (var c in _openedDateControllers) {
+                        c.dispose();
+                      }
+                      for (var c in _openedRuleControllers) {
+                        c.dispose();
+                      }
+                      for (var c in _descriptionControllers) {
+                        c.dispose();
+                      }
 
                       _expirationControllers.clear();
                       _openedDateControllers.clear();
@@ -393,7 +528,10 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                       }
                     });
                   }
-                  MessageDialog.show(context, message: "Instance successfully removed!");
+                  MessageDialog.show(
+                    context,
+                    message: "Instance successfully removed!",
+                  );
                 }
               } catch (e) {
                 if (context.mounted) {
