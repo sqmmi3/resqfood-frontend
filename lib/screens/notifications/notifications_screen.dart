@@ -44,6 +44,36 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
   }
 
+  Future<void> _handleDelete(int index) async {
+    final token = await AuthService.getStoredToken();
+    if (token == null) throw Exception("Not authenticated");
+
+    final notificationToDelete = _notifications[index];
+
+    setState(() {
+      _notifications.removeAt(index);
+    });
+
+    try {
+      final token = await AuthService.getStoredToken();
+      if (token != null) {
+        await NotificationService.deleteNotification(
+          notificationToDelete.id,
+          token,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _notifications.insert(index, notificationToDelete);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to delete notification")),
+        );
+      }
+    }
+  }
+
   Future<void> _handleNotificationTap(NotificationModel notification) async {
     if (!notification.isRead) {
       setState(() {
