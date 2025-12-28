@@ -10,6 +10,7 @@ class UserItemBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final dateFormat = DateFormat('dd-MM-yyyy');
     final now = DateTime.now();
     final bool isExpired = groupedItem.earliestExpiration.isBefore(now);
@@ -30,7 +31,7 @@ class UserItemBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.green.withValues(alpha: 0.7), width: 1.2),
+          border: Border.all(color: colorScheme.primary.withValues(alpha: 0.7), width: 1.2),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -45,7 +46,7 @@ class UserItemBar extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
               decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.7),
+                color: colorScheme.primary.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Text(

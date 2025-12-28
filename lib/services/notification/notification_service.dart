@@ -1,8 +1,8 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:frontend/firebase_options.dart';
@@ -89,7 +89,7 @@ class NotificationService {
   static Future<String?> getDeviceToken() async {
     // If we are on iOS, return null immediately to avoid the crash.
     // (Since we don't have the Push Notification capability enabled)
-    if (Platform.isIOS) {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
       debugPrint("🍎 Skipped getToken() on iOS (No Push Capability)");
       return null;
     }

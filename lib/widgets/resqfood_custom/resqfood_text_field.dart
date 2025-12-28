@@ -30,6 +30,8 @@ class ResQFoodTextField extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return TextFormField(
       controller: controller,
       obscureText: obscure && obscureValue,
@@ -37,27 +39,27 @@ class ResQFoodTextField extends StatelessWidget{
       onChanged: onChanged,
       readOnly: readOnly,
       onTap: onTap,
-      cursorColor: Colors.green,
+      cursorColor: colorScheme.primary,
       decoration: InputDecoration(
         labelText: label,
         hintText: (defaultValue != null && defaultValue!.isNotEmpty)
           ? defaultValue
           : "Enter $label",
         floatingLabelBehavior: FloatingLabelBehavior.auto,
-        floatingLabelStyle: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+        floatingLabelStyle: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold),
         contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
-        labelStyle: const TextStyle(color: Colors.black54),
+        labelStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.6)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide(color: Colors.grey, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: Colors.green, width: 1),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: Colors.red, width: 1),
+          borderSide: BorderSide(color: colorScheme.error, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
