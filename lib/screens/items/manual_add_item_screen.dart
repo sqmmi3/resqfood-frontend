@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/user_item.dart';
 import 'package:frontend/providers/notification/notification_provider.dart';
@@ -51,6 +52,15 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     _descriptionController = TextEditingController();
     _descriptionController.addListener(() {
       setState(() {});
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotificationProvider>().checkUnreadStatus();
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (mounted) {
+        context.read<NotificationProvider>().setUnread(true);
+      }
     });
   }
 

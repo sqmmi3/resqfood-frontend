@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/grouped_user_item.dart';
 import 'package:frontend/models/user_item.dart';
@@ -59,6 +60,16 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
     for (var item in widget.groupedUserItem.allInstances) {
       _addInstanceControllers(item);
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotificationProvider>().checkUnreadStatus();
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (mounted) {
+        context.read<NotificationProvider>().setUnread(true);
+      }
+    });
   }
 
   void _addInstanceControllers([UserItem? item]) {
