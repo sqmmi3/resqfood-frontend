@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:frontend/models/grouped_user_item.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/screens/items/item_details_screen.dart';
@@ -13,7 +12,9 @@ class UserItemBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     final dateFormat = DateFormat('dd-MM-yyyy');
     final now = DateTime.now();
     final bool isExpired = groupedItem.earliestExpiration.isBefore(now);
@@ -61,14 +62,15 @@ class UserItemBar extends StatelessWidget {
           margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           decoration: BoxDecoration(
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: highContrast ? Colors.black : Colors.green.withValues(alpha: 0.7),
+              color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.green.withValues(alpha: 0.7),
               width: highContrast ? 2.0 : 1.2,
             ),
-            boxShadow: [
+            boxShadow: highContrast ? null : [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
                 blurRadius: 4,
                 offset: const Offset(2, 2),
               )
@@ -80,14 +82,14 @@ class UserItemBar extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
                 decoration: BoxDecoration(
-                  color: highContrast ? Colors.black : Colors.green.withValues(alpha: 0.7),
+                  color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: Text(
                   groupedItem.amount.toString(),
                   style: TextStyle(
                     fontSize: 12,
-                    color: highContrast ? Colors.white : Colors.black,
+                    color: highContrast ? (isDark ? Colors.black : Colors.white) : isDark ? Colors.white : Colors.black,
                     fontWeight: FontWeight.bold
                   ),
                 ),
@@ -102,7 +104,7 @@ class UserItemBar extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: highContrast ? FontWeight.bold : FontWeight.w600,
-                    color: Colors.black,
+                    color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
               ),
@@ -113,7 +115,7 @@ class UserItemBar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     if (highContrast) ...[
-                      _getStatusIcon(statusLevel),
+                      _getStatusIcon(statusLevel, theme),
                       const SizedBox(width: 6),
                     ],
                     Text(
@@ -123,7 +125,7 @@ class UserItemBar extends StatelessWidget {
                       style: TextStyle(
                         fontSize: highContrast ? 14 : 12,
                         fontWeight: highContrast || isExpired ? FontWeight.bold : (daysLeft <= 7 ? FontWeight.w600 : FontWeight.w400),
-                        color: _getTextColor(isExpired, daysLeft, highContrast),
+                        color: _getTextColor(isExpired, daysLeft, highContrast, theme),
                       ),
                     ),
 
@@ -134,7 +136,7 @@ class UserItemBar extends StatelessWidget {
                         Icon(
                           Icons.inventory_2_rounded,
                           size: 10,
-                          color: highContrast ? Colors.black : Colors.orange.shade700,
+                          color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.orange.shade700,
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -143,7 +145,7 @@ class UserItemBar extends StatelessWidget {
                             fontSize: 10,
                             fontWeight: highContrast ? FontWeight.bold : FontWeight.normal,
                             fontStyle: highContrast ? null : FontStyle.italic,
-                            color: highContrast? Colors.black : Colors.orange.shade700,
+                            color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : Colors.orange.shade700,
                           ),
                         ),
                       ],
@@ -158,23 +160,25 @@ class UserItemBar extends StatelessWidget {
     );
   }
 
-  Color _getTextColor(bool isExpired, int daysLeft, bool highContrast) {
-    if (highContrast) return Colors.black;
+  Color _getTextColor(bool isExpired, int daysLeft, bool highContrast, ThemeData theme) {
+    if (highContrast) return theme.brightness == Brightness.dark ? Colors.white : Colors.black;
     if (isExpired) return Colors.red;
     if (daysLeft <= 3) return Colors.red.shade700;
     if (daysLeft <= 5) return Colors.orange.shade700;
-    if (daysLeft <= 7) return Colors.grey.shade900;
-    return Colors.black;
+    if (daysLeft <= 7) return theme.brightness == Brightness.dark ? Colors.white70 : Colors.grey.shade900;
+    return theme.brightness == Brightness.dark ? Colors.white : Colors.black;
   }
 
-  Widget _getStatusIcon(int level) {
+  Widget _getStatusIcon(int level, ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
+
     switch (level) {
       case 2:
-        return const Icon(Icons.error_outline, color: Colors.black, size: 18);
+        return Icon(Icons.error_outline, color: isDark ? Colors.white : Colors.black, size: 18);
       case 1:
-        return const Icon(Icons.help_outline, color: Colors.black, size: 18);
+        return Icon(Icons.help_outline, color: isDark ? Colors.white : Colors.black, size: 18);
       default:
-        return const Icon(Icons.check_circle_outline, color: Colors.black, size: 18);
+        return Icon(Icons.check_circle_outline, color: isDark ? Colors.white : Colors.black, size: 18);
     }
   }
 }

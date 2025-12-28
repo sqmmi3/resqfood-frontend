@@ -17,6 +17,8 @@ class ResQFoodSecondaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return SizedBox(
       height: 58,
@@ -27,12 +29,12 @@ class ResQFoodSecondaryButton extends StatelessWidget {
           if (isHapticsEnabled) HapticFeedback.mediumImpact();
         },
         style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.green,
+          foregroundColor: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
           ),
           side: BorderSide(
-            color: Colors.green, 
+            color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary, 
             width: highContrast ? 3.0 : 2.0
           ),
           padding: const EdgeInsets.all(16),

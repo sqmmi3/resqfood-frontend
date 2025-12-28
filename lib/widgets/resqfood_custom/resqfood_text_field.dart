@@ -37,6 +37,7 @@ class ResQFoodTextField extends StatelessWidget{
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return TextFormField(
       controller: controller,
@@ -49,7 +50,7 @@ class ResQFoodTextField extends StatelessWidget{
       style: TextStyle(
         fontWeight: highContrast ? FontWeight.bold : FontWeight.normal,
         fontSize: 16,
-        color: Colors.black,
+        color: theme.brightness == Brightness.dark ? Colors.white : Colors.black,
       ),
       decoration: InputDecoration(
         labelText: label,
@@ -62,19 +63,19 @@ class ResQFoodTextField extends StatelessWidget{
         labelStyle: TextStyle(color: highContrast ? Colors.black : Colors.black54),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-          borderSide: BorderSide(color: highContrast ? Colors.black : Colors.grey, width: highContrast ? 2.0 : 1.0),
+          borderSide: BorderSide(color: highContrast ? (isDark ? Colors.white : Colors.black) : (isDark ? Colors.white70 : Colors.grey), width: highContrast ? 2.0 : 1.0),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-          borderSide: BorderSide(color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : colorScheme.primary, width: highContrast ? 3.0 : 2.0),
+          borderSide: BorderSide(color: highContrast ? (isDark ? Colors.white : Colors.black) : colorScheme.primary, width: highContrast ? 3.0 : 2.0),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-          borderSide: BorderSide(color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white :Colors.black) : colorScheme.error, width: highContrast ? 2.5 : 1.0),
+          borderSide: BorderSide(color: highContrast ? (isDark ? Colors.white :Colors.black) : colorScheme.error, width: highContrast ? 2.5 : 1.0),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-          borderSide: BorderSide(color: highContrast ? Colors.black : Colors.red, width: highContrast ? 3.0 : 2.0),
+          borderSide: BorderSide(color: highContrast ? (isDark ? Colors.white : Colors.black) : colorScheme.error, width: highContrast ? 3.0 : 2.0),
         ),
         suffixIcon: showToggle
             ? IconButton(

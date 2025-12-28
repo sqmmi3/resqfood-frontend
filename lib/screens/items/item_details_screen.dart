@@ -21,6 +21,7 @@ class ItemDetailsScreen extends StatelessWidget {
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     final groupedItem = userItemProvider.items.firstWhere(
       (element) => element.itemName == itemName,
@@ -85,7 +86,7 @@ class ItemDetailsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Center(
-                      child: Text(groupedItem.itemName, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: highContrast ? Colors.black : Colors.green.shade800)),
+                      child: Text(groupedItem.itemName, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: highContrast ? (isDark ? Colors.white :Colors.black) : theme.colorScheme.primary)),
                     ),
                     const SizedBox(height: 30),
 
@@ -100,7 +101,7 @@ class ItemDetailsScreen extends StatelessWidget {
                         userItem: groupedItem.allInstances[i],
                         index: i + 1,
                         onDelete: () {
-                          _showDeleteConfirmation(context, userItemProvider, groupedItem.allInstances[i].id!, "${groupedItem.itemName.toString()} #${i + 1}", isHapticsEnabled);
+                          _showDeleteConfirmation(context, userItemProvider, groupedItem.allInstances[i].id!, "${groupedItem.itemName.toString()} #${i + 1}", isHapticsEnabled, highContrast);
                         }
                       ),
                   ],
@@ -117,6 +118,7 @@ class ItemDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildCommonField(BuildContext context, String label, String value, bool highContrast) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 5),
       child: Column(
@@ -139,7 +141,7 @@ class ItemDetailsScreen extends StatelessWidget {
               color: theme.colorScheme.onSurface,
             ),
           ),
-          const Divider(
+          Divider(
             color: highContrast
               ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black)
               : theme.dividerColor,
@@ -150,16 +152,23 @@ class ItemDetailsScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, UserItemProvider provider, int id, String instanceTitle, bool isHapticsEnabled) {
+  void _showDeleteConfirmation(BuildContext context, UserItemProvider provider, int id, String instanceTitle, bool isHapticsEnabled, bool highContrast) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: highContrast ? (isDark ? Colors.black : Colors.white) : theme.colorScheme.surface,
+        shape: Border.all(
+          color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.transparent
+        ),
         title: Text("Delete $instanceTitle?"),
         content: const Text("Are you sure you want to remove this specific instance?"),
         actions: [
           TextButton(
             onPressed: () { Navigator.pop(context); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
-            child: const Text("Cancel"),
+            child: Text("Cancel", style: TextStyle(color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary)),
           ),
           TextButton(
             onPressed: () async {
@@ -178,7 +187,7 @@ class ItemDetailsScreen extends StatelessWidget {
               }
               isHapticsEnabled ? HapticFeedback.mediumImpact() : null;
             },
-            child: Text("Delete", style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight.bold)),
+            child: Text("Delete", style: TextStyle(color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.error, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

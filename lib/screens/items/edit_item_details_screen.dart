@@ -72,7 +72,8 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
     final userItemProvider = context.watch<UserItemProvider>();
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
-    final theme = Theme.of(context)
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: highContrast
@@ -166,7 +167,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                         child: Text(
                           "Remove this instance",
                           style: TextStyle(
-                            color: theme.colorScheme.error,
+                            color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.error,
                             fontWeight: highContrast ? FontWeight.bold : FontWeight.normal,
                             fontSize: highContrast ? 14 : 12
                           )
@@ -274,7 +275,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
             )
           ],
         ),
-        const Divider(color: Theme.of(context).dividerColor, thickness: highContrast ? 2 : 1),
+        Divider(color: Theme.of(context).dividerColor, thickness: highContrast ? 2 : 1),
         const SizedBox(height: 10)
       ],
     );
@@ -282,6 +283,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
 
   Widget _buildDescriptionBox(TextEditingController controller, bool highContrast, bool isHapticsEnabled) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -289,7 +291,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
         const SizedBox(height: 8),
         Container(
           height: 120,
-          decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.surface, width: highContrast ? 3.0 : 1.0), borderRadius: BorderRadius.circular( highContrast ? 8 : 15)),
+          decoration: BoxDecoration(border: Border.all(color: highContrast ? (isDark ? Colors.white70 : Colors.grey.shade800) : theme.colorScheme.surface, width: highContrast ? 3.0 : 1.0), borderRadius: BorderRadius.circular( highContrast ? 8 : 15)),
           padding: const EdgeInsets.all(12),
           child: TextField(
             controller: controller,
@@ -373,15 +375,21 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
   }
 
   void _showDeleteConfirmation(BuildContext context, UserItemProvider provider, int id, String instanceTitle, bool highContrast, bool isHapticsEnabled) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
+        backgroundColor: highContrast ? (isDark ? Colors.black : Colors.white) : theme.colorScheme.surface,
+        shape: Border.all(
+          color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.transparent
+        ),
         title: Text("Delete $instanceTitle?"),
         content: const Text("Are you sure you want to remove this specific instance?"),
         actions: [
           TextButton(
             onPressed: () { Navigator.pop(dialogContext); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
-            child: const Text("Cancel"),
+            child: Text("Cancel", style: TextStyle(color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary)),
           ),
           TextButton(
             onPressed: () async {
@@ -425,7 +433,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                 }
               }
             },
-            child: Text("Delete", style: TextStyle(color: highContrast ? Colors.black : Colors.red)),
+            child: Text("Delete", style: TextStyle(color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.error)),
           ),
         ],
       ),

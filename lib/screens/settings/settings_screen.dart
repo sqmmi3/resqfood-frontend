@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
+import 'package:frontend/providers/theme/theme_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
 import 'package:frontend/services/household/household_service.dart';
 import 'package:frontend/widgets/message_dialog.dart';
@@ -75,6 +76,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final String? householdCode = authProvider.user?.householdCode;
     final bool isInHousehold = householdCode != null;
     final bool highContrast = authProvider.highContrast;
@@ -82,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final bool isLeft = authProvider.isLeftHanded;
 
     return Scaffold(
-      backgroundColor: highContrast ? Colors.white : Colors.grey[50],
+      backgroundColor: highContrast ? (isDark ? Colors.black : Colors.white) : theme.colorScheme.surface,
       body: Stack(
         children: [
           ListView(
@@ -96,8 +101,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   subtitle: "Start a shared inventory with others",
                   icon: Icons.add_home_rounded,
                   color: Colors.green,
-                  onTap: () { _handleCreateHousehold; isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
+                  onTap: () { _handleCreateHousehold(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
                   highContrast: highContrast,
+                  theme: theme
                 ),
                 const SizedBox(height: 12),
                 _buildActionCard(
@@ -107,19 +113,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: Colors.blue,
                   onTap: () { _showJoinBottomSheet(context, isHapticsEnabled); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
                   highContrast: highContrast,
+                  theme: theme
                 ),
               ] else ...[
-                _buildHouseholdActiveCard(householdCode, highContrast, isHapticsEnabled),
+                _buildHouseholdActiveCard(householdCode, highContrast, isHapticsEnabled, theme),
               ],
 
               const SizedBox(height: 32),
               _buildSectionHeader("Preferences"),
               SwitchListTile(
-                secondary: Icon(Icons.back_hand_rounded, color: highContrast ? Colors.black : Colors.orange),
+                secondary: Icon(Icons.back_hand_rounded, color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.orange),
                 title: Text("Left-Handed Mode", style: TextStyle(fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
                 subtitle: const Text("Moves primary buttons to the left side"),
                 value: isLeft,
-                activeThumbColor: highContrast ? Colors.black : Colors.green,
+                activeThumbColor: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary,
                 controlAffinity: isLeft
                   ? ListTileControlAffinity.leading
                   : ListTileControlAffinity.trailing,
@@ -130,26 +137,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
 
               SwitchListTile(
-                secondary: Icon(Icons.dark_mode, color: highContrast ? Colors.black : Colors.deepPurple),
+                secondary: Icon(Icons.dark_mode, color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.deepPurple),
                 title: Text("Dark Mode", style: TextStyle(fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
                 subtitle: const Text("Turns application to dark coloured environment"),
-                value: authProvider.themeMode == ThemeMode.dark,
-                activeThumbColor: highContrast ? Colors.black : Colors.green,
+                value: themeProvider.isDarkMode,
+                activeThumbColor: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary,
                 controlAffinity: isLeft
                   ? ListTileControlAffinity.leading
                   : ListTileControlAffinity.trailing,
                 onChanged: (val) { 
-                  authProvider.setThemeMode(val);
+                  themeProvider.toggleTheme();
                   isHapticsEnabled ? HapticFeedback.lightImpact() : null;
                 },
               ),
 
               SwitchListTile(
-                secondary: Icon(Icons.remove_red_eye_rounded, color: highContrast ? Colors.black : Colors.blue),
+                secondary: Icon(Icons.remove_red_eye_rounded, color: highContrast ? (isDark ? Colors.white :Colors.black) : Colors.blue),
                 title: Text("High Contrast Mode", style: TextStyle(fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
                 subtitle: const Text("Adds icons for colorblind-friendly status"),
                 value: authProvider.highContrast,
-                activeThumbColor: highContrast ? Colors.black : Colors.green,
+                activeThumbColor: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary,
                 controlAffinity: isLeft
                   ? ListTileControlAffinity.leading
                   : ListTileControlAffinity.trailing,
@@ -160,11 +167,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
 
               SwitchListTile(
-                secondary: Icon(Icons.vibration, color: highContrast ? Colors.black : Colors.blueGrey),
+                secondary: Icon(Icons.vibration, color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.blueGrey),
                 title: Text("Touch Feedback", style: TextStyle(fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
                 subtitle: const Text("Vibrate on actions"),
                 value: authProvider.hapticsEnabled,
-                activeThumbColor: highContrast ? Colors.black : Colors.green,
+                activeThumbColor: highContrast ? (isDark ? Colors.white :Colors.black) : theme.colorScheme.primary,
                 controlAffinity: isLeft ? ListTileControlAffinity.leading : ListTileControlAffinity.trailing,
                 onChanged: (val) { 
                   authProvider.setHaptics(val);
@@ -173,11 +180,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
 
               SwitchListTile(
-                secondary: Icon(Icons.record_voice_over_rounded, color: highContrast ? Colors.black : Colors.purple),
+                secondary: Icon(Icons.record_voice_over_rounded, color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.purple),
                 title: Text("Enhanced Screen Reader", style: TextStyle(fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
                 subtitle: const Text("Optimizes descriptions for Talkback/VoiceOver"),
                 value: authProvider.isHighVerbosity,
-                activeThumbColor: highContrast ? Colors.black : Colors.green,
+                activeThumbColor: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary,
                 controlAffinity: isLeft 
                     ? ListTileControlAffinity.leading 
                     : ListTileControlAffinity.trailing,
@@ -192,7 +199,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 trailing: isLeft ? const Icon(Icons.format_size) : const Icon(Icons.chevron_right),
                 title: Text("Font Size", textAlign: isLeft ? TextAlign.right : TextAlign.left),
                 onTap: () {
-                  _showFontSizePicker(context, authProvider);
+                  _showFontSizePicker(context, authProvider, theme);
                   isHapticsEnabled ? HapticFeedback.lightImpact() : null;
                 },
               ),
@@ -200,8 +207,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 32),
               _buildSectionHeader("Account"),
               ListTile(
-                leading:Icon(Icons.logout, color: highContrast ? Colors.black : Colors.red),
-                title: Text("Logout", style: TextStyle(color: highContrast ? Colors.black : Colors.red, fontWeight: FontWeight.bold)),
+                leading:Icon(Icons.logout, color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.red),
+                title: Text("Logout", style: TextStyle(color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.red, fontWeight: FontWeight.bold)),
                 onTap: () async {
                   context.read<UserItemProvider>().reset();
                   await authProvider.logout();
@@ -226,17 +233,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildActionCard({required String title, required String subtitle, required IconData icon, required Color color, required VoidCallback onTap, required bool highContrast}) {
+  Widget _buildActionCard({required String title, required String subtitle, required IconData icon, required Color color, required VoidCallback onTap, required bool highContrast, required ThemeData theme}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: highContrast ? Colors.white : color.withValues(alpha: 0.08),
+          color: highContrast ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white) : color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: highContrast ? Colors.black : color.withValues(alpha: 0.2),
+            color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : color.withValues(alpha: 0.2),
             width: highContrast ? 2.0 : 1.2,
           ),
         ),
@@ -249,41 +256,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  Text(subtitle, style: TextStyle(fontSize: 12, color: highContrast ? Colors.black : Colors.grey[700])),
+                  Text(subtitle, style: TextStyle(fontSize: 12, color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : Colors.grey[700])),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: highContrast ? Colors.black : Colors.grey),
+            Icon(Icons.chevron_right, color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : Colors.grey),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHouseholdActiveCard(String code, bool highContrast, bool isHapticsEnabled) {
+  Widget _buildHouseholdActiveCard(String code, bool highContrast, bool isHapticsEnabled, ThemeData theme) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: highContrast ? Colors.black : Colors.green,
+        color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white :Colors.black) : theme.colorScheme.primary,
         borderRadius: BorderRadius.circular(24),
-        border: highContrast ? Border.all(color: Colors.black, width: 3) : null,
-        boxShadow: [BoxShadow(color: highContrast ? Colors.black : Colors.green.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6))],
+        border: highContrast ? Border.all(color: theme.brightness == Brightness.dark ? Colors.white : Colors.black, width: 3) : null,
+        boxShadow: [BoxShadow(color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : Colors.green.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6))],
       ),
       child: Column(
         children: [
-          Text("YOUR HOUSEHOLD CODE", style: TextStyle(color: highContrast ? Colors.white : Colors.white70, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+          Text("YOUR HOUSEHOLD CODE", style: TextStyle(color: highContrast ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white) : Colors.white70, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
           const SizedBox(height: 8),
           SelectableText(
             code,
-            style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold, letterSpacing: 6),
+            style: TextStyle(color: highContrast ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white) : Colors.white, fontSize: 36, fontWeight: FontWeight.bold, letterSpacing: 6),
           ),
           const SizedBox(height: 12),
-          const Text("Share this with people you live with", style: TextStyle(color: Colors.white, fontSize: 12)),
-          const Divider(height: 32, color: Colors.white24),
+          Text("Share this with people you live with", style: TextStyle(color: highContrast ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white) : Colors.white, fontSize: 12)),
+          Divider(height: 32, color: highContrast ? (theme.brightness == Brightness.dark ? Colors.black54 : Colors.white24) : Colors.white24),
           TextButton(
             onPressed: () { _handleLeaveHousehold(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
-            child: Text("Leave Household", style: TextStyle(color: highContrast ? Colors.white : Colors.white70, fontSize: 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
+            child: Text("Leave Household", style: TextStyle(color: highContrast ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white) : Colors.white70, fontSize: 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
           )
         ],
       ),
@@ -358,12 +365,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _showFontSizePicker(BuildContext context, AuthProvider authProvider) {
+  void _showFontSizePicker(BuildContext context, AuthProvider authProvider, ThemeData theme) {
     final bool highContrast = authProvider.highContrast;
+    final isDark = theme.brightness == Brightness.dark;
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: highContrast ? Colors.white : null,
+      backgroundColor: highContrast ? (isDark ? Colors.black : Colors.white) : null,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
@@ -405,16 +413,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      color: isDark ? Colors.grey[900] : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
-                      border: highContrast ? Border.all(color: Colors.black, width: 2) : null,
+                      border: highContrast ? Border.all(color: isDark ? Colors.white : Colors.black, width: 2) : null,
                     ),
                     child: Text(
                       "This is how your text will look.",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16 * authProvider.fontSizeFactor,
-                        color: Colors.black,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
                     ),
                   ),
@@ -426,7 +434,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     min: 0.5,
                     max: 1.6,
                     divisions: 20,
-                    activeColor: Colors.green,
+                    activeColor: theme.colorScheme.primary,
                     inactiveColor: Colors.green.withValues(alpha: 0.2),
                     label: "${(authProvider.fontSizeFactor * 100).toInt()}%",
                     onChanged: (double value) {

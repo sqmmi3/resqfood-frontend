@@ -12,7 +12,6 @@ import 'package:frontend/services/auth/auth_service.dart';
 import 'package:frontend/services/notification/notification_service.dart';
 import 'package:frontend/theme/app_theme.dart';
 import 'package:frontend/widgets/notification/notification_banner.dart';
-import 'package:frontend/widgets/theme/theme_toggle_button.dart';
 import 'package:provider/provider.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -67,18 +66,6 @@ class ResQFoodApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
       navigatorKey: navigatorKey,
-      themeMode: authProvider.themeMode,
-      theme: ThemeData(
-        brightness: Brightness.light,
-        primarySwatch: Colors.green,
-        scaffoldBackgroundColor: Colors.white
-      ),
-
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.green,
-        scaffoldBackgroundColor: Colors.black,
-      ),
       builder: (context, child) {
         final isLoading = context.watch<UserItemProvider>().loading;
         return MediaQuery(
@@ -89,7 +76,6 @@ class ResQFoodApp extends StatelessWidget {
             children: [
               child!,
               const NotificationBanner(),
-              const ThemeToggleButton(),
               if (isLoading)
                 Container(
                   color: authProvider.highContrast ? Colors.black.withValues(alpha: 0.7) : Colors.black26,

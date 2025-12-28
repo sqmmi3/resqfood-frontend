@@ -19,7 +19,7 @@ class ResQFoodPrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
 
     return SizedBox(
       height: 58,
@@ -27,8 +27,8 @@ class ResQFoodPrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () { disabled ? null : onPressed?.call(); isHapticsEnabled ? HapticFeedback.mediumImpact() : null; },
         style: ElevatedButton.styleFrom(
-          foregroundColor: _getForegroundColor(disabled, highContrast),
-          backgroundColor: _getBackgroundColor(disabled, highContrast),
+          foregroundColor: _getForegroundColor(disabled, highContrast, theme),
+          backgroundColor: _getBackgroundColor(disabled, highContrast, theme),
           side: highContrast && !disabled
             ? const BorderSide(color: Colors.black, width: 3)
             : BorderSide.none,
@@ -46,15 +46,19 @@ class ResQFoodPrimaryButton extends StatelessWidget {
     );
   }
 
-  Color _getBackgroundColor(bool disabled, bool highContrast) {
+  Color _getBackgroundColor(bool disabled, bool highContrast, ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
+
     if (disabled) return Colors.grey.shade400;
-    if (highContrast) return Colors.white;
+    if (highContrast) return isDark ? Colors.white : Colors.black;
     return Colors.green;
   }
 
-  Color _getForegroundColor(bool disabled, bool highContrast) {
+  Color _getForegroundColor(bool disabled, bool highContrast, ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
+
     if (disabled) return Colors.white;
-    if (highContrast) return Colors.black;
+    if (highContrast) return isDark ? Colors.black : Colors.white;
     return Colors.white;
   }
 }

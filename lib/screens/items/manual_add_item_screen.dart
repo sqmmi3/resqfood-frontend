@@ -58,10 +58,11 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: highContrast
-        ? (theme.brightness == Brighntess.dark ? Colors.black : Colors.white)
+        ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
         : theme.colorScheme.surface,
       appBar: ResQFoodAppBar(
         onMenuTap: () {
@@ -105,7 +106,7 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(child: Text("Add Item", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32, color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : Colors.green.shade800))),
+                  Center(child: Text("Add Item", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32, color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary))),
                   const SizedBox(height: 30),
                   _buildSectionLabel("General Information", highContrast, theme),
                   _buildAddField("Product name", _nameController, highContrast),
@@ -159,6 +160,7 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
 
   Widget _buildCategoryDropDown(bool highContrast, bool isHapticsEnabled, ThemeData theme) {
   final colorScheme = theme.colorScheme;
+  final isDark = theme.brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -167,10 +169,10 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
         DropdownButtonFormField<String>(
           key: ValueKey(_selectedCategory),
           hint: const Text("Select a category"),
-          dropDownColor: highContrast
+          dropdownColor: highContrast
             ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
             : theme.colorScheme.surface,
-          icon: const Icon(Icons.arrow_drop_down, color: colorScheme.onSurface),
+          icon: Icon(Icons.arrow_drop_down, color: colorScheme.onSurface),
           items: _categories.map((category) => DropdownMenuItem(value: category, child: Text(category.replaceAll('_', ' ')))).toList(),
           onTap: () { isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
           onChanged: (value) => setState(() => _selectedCategory = value),
@@ -184,7 +186,7 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
             labelStyle: TextStyle(color: highContrast ? Colors.black : Colors.black54),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-              borderSide: BorderSide(color: highContrast ? colorScheme.onSurface : Colors.grey, width: highContrast ? 2.0 : 1.0),
+              borderSide: BorderSide(color: highContrast ? colorScheme.onSurface : (isDark ? Colors.white70 :Colors.grey), width: highContrast ? 2.0 : 1.0),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
@@ -192,11 +194,11 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(highContrast? 8 : 15),
-              borderSide: BorderSide(color: highContrast? colorScheme.onSurface : Colors.red, width: highContrast ? 2.5 : 1),
+              borderSide: BorderSide(color: highContrast? colorScheme.onSurface : colorScheme.error, width: highContrast ? 2.5 : 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-              borderSide: BorderSide(color: highContrast ? colorScheme.onSurface : Colors.red, width: highContrast ? 3.0 : 2.0)
+              borderSide: BorderSide(color: highContrast ? colorScheme.onSurface : colorScheme.error, width: highContrast ? 3.0 : 2.0)
             ),
           ),
         ),
@@ -236,7 +238,9 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     }
   }
 
-  Widget _buildDescriptionField(bool highContrast, bool isHapticsEnabled) {
+  Widget _buildDescriptionField(bool highContrast, bool isHapticsEnabled, ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -251,22 +255,22 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               onTap: () { isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
               decoration: InputDecoration(
                 labelText: "Product description",
-                hintText: "Product description",
+                hintText: "Enter Product description",
+                floatingLabelStyle: TextStyle(
+                  color: highContrast ? theme.colorScheme.onSurface : theme.colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
                 alignLabelWithHint: true,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
-                floatingLabelStyle: TextStyle(
-                  color: highContrast ? Colors.black : Colors.green, 
-                  fontWeight: FontWeight.bold
-                ),
                 labelStyle: TextStyle(color: highContrast ? Colors.black : Colors.black54),
                 contentPadding: const EdgeInsets.fromLTRB(14, 18, 14, 30),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-                  borderSide: BorderSide(color: highContrast? Colors.black : Colors.grey, width: highContrast ? 2.0 : 1.0),
+                  borderSide: BorderSide(color: highContrast ? (isDark ? Colors.white : Colors.black) : (isDark ? Colors.white70 : Colors.grey), width: highContrast ? 2.0 : 1.0),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-                  borderSide: BorderSide(color: highContrast ? Colors.black : Colors.green, width: highContrast ? 3.0 : 1.0),
+                  borderSide: BorderSide(color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary, width: highContrast ? 3.0 : 1.0),
                 ),
                 counterText: "",
               ),
@@ -277,7 +281,7 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               child: Text(
                 "${_descriptionController.text.length}/128",
                 style: TextStyle(
-                  color: highContrast ? Colors.black : Colors.grey,
+                  color: highContrast ? (isDark ? Colors.white : Colors.black) : (isDark ? Colors.white70 :Colors.grey),
                   fontSize: highContrast ? 14 : 10,
                   fontWeight: highContrast ? FontWeight.bold : FontWeight.w400,
                 ),

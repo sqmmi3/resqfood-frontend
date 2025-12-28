@@ -40,15 +40,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: highContrast
-        ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
-        : theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.3),
+      backgroundColor: theme.brightness == Brightness.dark ? Colors.black : Colors.white,
       body: Stack(
         children: [
           userItemProvider.loading
             ? const Center(child: CircularProgressIndicator())
             : userItemProvider.items.isEmpty
-              ? const Center(child: Text('No items found.'))
+              ? Center(child: Text('No items found.', style: TextStyle(color: theme.brightness == Brightness.dark ? Colors.white : Colors.black)))
               : ListView.builder(
                 padding: const EdgeInsets.only(bottom: 100),
                 itemCount: userItemProvider.items.length,
@@ -82,17 +80,17 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 60,
             child: FloatingActionButton(
               backgroundColor: highContrast 
-                ? (theme.brightness == Brightness.dark ? Colors.white)
-                : theme.colorscheme.primary,
+                ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black)
+                : theme.colorScheme.primary,
               elevation: highContrast ? 0 : 6,
               shape: CircleBorder(
-                side: highContrast ? const BorderSide(color: theme.brightness == Brightness.dark ? Colors.black : Colors.white, width: 2) : BorderSide.none
+                side: highContrast ? BorderSide(color: theme.brightness == Brightness.dark ? Colors.black : Colors.white, width: 2) : BorderSide.none
               ),
               onPressed: () { toggleMenu(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
               child: Icon(
                 _isMenuOpen ? Icons.close : Icons.add,
                 color: highContrast
-                  ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white),
+                  ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
                   : theme.colorScheme.onPrimary,
                 size: 35,
               ),
@@ -133,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // TODO
             isHapticsEnabled ? HapticFeedback.lightImpact() : null;
           }, highContrast),
-          const Divider(
+          Divider(
             height: 1,
             color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : colorScheme.outline,
             thickness: highContrast ? 2.5 : 1.5,

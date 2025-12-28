@@ -20,8 +20,8 @@ class ResQFoodBottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
-      backgroundColor: highContrast ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white) : Colors.white,
-      selectedItemColor: highContrast ? Colors.black : Colors.green,
+      backgroundColor: theme.brightness == Brightness.dark ? Colors.black : Colors.white,
+      selectedItemColor: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : theme.colorScheme.primary,
       unselectedItemColor: Colors.grey.shade500,
       showUnselectedLabels: true,
       items: const [

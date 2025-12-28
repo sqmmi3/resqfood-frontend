@@ -57,9 +57,9 @@ class UserItemDetailCard extends StatelessWidget {
                 right: 0,
                 child: Text(
                   "${userItem.description?.length ?? 0}/128",
-                  style: TextStyle(fontSize: highContrast ? 14 : 10, color: highContrast ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black) : Theme.of(context).hintColor,
+                  style: TextStyle(fontSize: highContrast ? 14 : 10, color: highContrast ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black) : Theme.of(context).hintColor)
                 ),
-              )
+              ),
             ],
           )
         ),
@@ -68,7 +68,7 @@ class UserItemDetailCard extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: TextButton(
             onPressed: () { onDelete(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
-            child: Text("Remove this instance", style: TextStyle(color: highContrast ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black : Theme.of(context).colorScheme.error, fontSize: highContrast ? 14 : 12))),
+            child: Text("Remove this instance", style: TextStyle(color: highContrast ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black) : Theme.of(context).colorScheme.error, fontSize: highContrast ? 14 : 12))),
         ),
         const SizedBox(height: 20),
       ],
@@ -84,7 +84,7 @@ class UserItemDetailCard extends StatelessWidget {
           Text(label, style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
           const SizedBox(height: 5),
           Text(value, style: TextStyle(fontSize: highContrast ? 16 : 14, fontWeight: highContrast ? FontWeight.w700 : FontWeight.w500)),
-          const Divider(color: Theme.of(context).dividerColor, thickness: 1.2),
+          Divider(color: Theme.of(context).dividerColor, thickness: 1.2),
         ],
       ),
     );

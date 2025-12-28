@@ -31,9 +31,6 @@ class AuthProvider extends ChangeNotifier {
   bool _isHighVerbosity = false;
   bool get isHighVerbosity => _isHighVerbosity;
 
-  ThemeMode _themeMode = ThemeMode.light;
-  ThemeMode get themeMode => _themeMode;
-
   bool _hapticsEnabled = false;
   bool get hapticsEnabled => _hapticsEnabled;
 
@@ -55,10 +52,6 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setThemeMode(bool isDark) {
-    _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
-    notifyListeners();
-  }
 
   void setHaptics(bool value) {
     _hapticsEnabled = value;
