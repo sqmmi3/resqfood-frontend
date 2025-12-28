@@ -182,7 +182,20 @@ class _NotificationScreenState extends State<NotificationScreen> {
         separatorBuilder: (context, index) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final notification = _notifications[index];
-          return _buildNotificationTile(notification);
+          return Dismissible(
+            key: Key(notification.id.toString()),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 20),
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
+            onDismissed: (direction) {
+              _handleDelete(index);
+            },
+            child: _buildNotificationTile(notification),
+          );
         },
       ),
     );
