@@ -21,7 +21,7 @@ class NotificationService {
   static Stream<int?> get navigationStream =>
       _navigationStreamController.stream;
 
-  final String baseUrl = dotenv.env['API_BASE_URL'] ?? '';
+  static String get baseUrl => dotenv.env['API_BASE_URL'] ?? '';
 
   static Stream<RemoteMessage> get foregroundStream =>
       FirebaseMessaging.onMessage;
@@ -133,10 +133,12 @@ class NotificationService {
   }
 
   // Fetch list of saved notifications from backend
-  Future<List<NotificationModel>> fetchNotifications(String jwtToken) async {
+  static Future<List<NotificationModel>> fetchNotifications(
+    String jwtToken,
+  ) async {
     try {
       final response = await http.get(
-        Uri.parse(baseUrl),
+        Uri.parse("$baseUrl/notifications"),
         headers: {
           'Content-Type': "application/json",
           'Authorization': 'Bearer $jwtToken',
@@ -156,10 +158,10 @@ class NotificationService {
   }
 
   // Mark notification as read
-  Future<void> markAsRead(int notificationId, String jwtToken) async {
+  static Future<void> markAsRead(int notificationId, String jwtToken) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl/$notificationId/read'),
+        Uri.parse('$baseUrl/notifications/$notificationId/read'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',

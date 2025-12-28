@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/home/home_screen.dart';
+import 'package:frontend/screens/notifications/notifications_screen.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
 import 'package:frontend/widgets/nav/resqfood_bottomnavbar.dart';
 
@@ -10,26 +11,23 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen>{
+class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [
-    HomeScreen(),
-  ];
+  final List<Widget> _screens = [HomeScreen()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ResQFoodAppBar(
-        onMenuTap: () {
-
-        },
+        onMenuTap: () {},
         onNotificationTap: () {
-
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationScreen()),
+          );
         },
-        onUserTap: () {
-
-        },
+        onUserTap: () {},
       ),
       body: Padding(
         padding: const EdgeInsets.only(top: 0),

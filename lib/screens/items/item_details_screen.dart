@@ -29,72 +29,96 @@ class ItemDetailsScreen extends StatelessWidget {
     );
 
     if (groupedItem.allInstances.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.pop(context));
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => Navigator.pop(context),
+      );
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
       appBar: ResQFoodAppBar(
-        onMenuTap: () {
-          
-        },
-        onNotificationTap: () {
-
-        },
-        onUserTap: () {
-          
-        },
+        onMenuTap: () {},
+        onNotificationTap: () {},
+        onUserTap: () {},
       ),
-      body: 
-        SingleChildScrollView(
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8, top: 8),
-                  child: TextButton.icon(
-                    onPressed: () => {Navigator.pop(context)},
-                    icon: const Icon(Icons.arrow_back, color: Colors.black,),
-                    label: const Text("Go back", style: TextStyle(color: Colors.black)),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8, top: 8),
+                child: TextButton.icon(
+                  onPressed: () => {Navigator.pop(context)},
+                  icon: const Icon(Icons.arrow_back, color: Colors.black),
+                  label: const Text(
+                    "Go back",
+                    style: TextStyle(color: Colors.black),
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(groupedItem.itemName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    ),
-                    const SizedBox(height: 20),
-
-                    _buildCommonField("Name", groupedItem.itemName),
-                    _buildCommonField("Category", groupedItem.type),
-                    _buildCommonField("Quantity", groupedItem.amount.toString()),
-                    
-                    const SizedBox(height: 10),
-
-                    for (int i = 0; i < groupedItem.allInstances.length; i++)
-                      UserItemDetailCard(
-                        userItem: groupedItem.allInstances[i],
-                        index: i + 1,
-                        onDelete: () {
-                          _showDeleteConfirmation(context, userItemProvider, groupedItem.allInstances[i].id!, "${groupedItem.itemName.toString()} #${i + 1}");
-                        }
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Text(
+                      groupedItem.itemName,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
-                  ],
-                ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  _buildCommonField("Name", groupedItem.itemName),
+                  _buildCommonField("Category", groupedItem.type),
+                  _buildCommonField("Quantity", groupedItem.amount.toString()),
+
+                  const SizedBox(height: 10),
+
+                  for (int i = 0; i < groupedItem.allInstances.length; i++)
+                    UserItemDetailCard(
+                      userItem: groupedItem.allInstances[i],
+                      index: i + 1,
+                      onDelete: () {
+                        _showDeleteConfirmation(
+                          context,
+                          userItemProvider,
+                          groupedItem.allInstances[i].id!,
+                          "${groupedItem.itemName.toString()} #${i + 1}",
+                        );
+                      },
+                    ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 50, top: 10),
-                child: ResQFoodPrimaryButton(text: "Edit", onPressed: () => {Navigator.push(context, MaterialPageRoute(builder: (context) => EditItemDetailsScreen(groupedUserItem: groupedItem)))}),
-              )
-            ],
-          ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+                bottom: 50,
+                top: 10,
+              ),
+              child: ResQFoodPrimaryButton(
+                text: "Edit",
+                onPressed: () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          EditItemDetailsScreen(groupedUserItem: groupedItem),
+                    ),
+                  ),
+                },
+              ),
+            ),
+          ],
         ),
-        
+      ),
     );
   }
 
@@ -105,19 +129,29 @@ class ItemDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: const TextStyle(fontSize: 16)),
-          Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300)),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
+          ),
           const Divider(color: Colors.black, thickness: 1),
         ],
       ),
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, UserItemProvider provider, int id, String instanceTitle) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    UserItemProvider provider,
+    int id,
+    String instanceTitle,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Delete $instanceTitle?"),
-        content: const Text("Are you sure you want to remove this specific instance?"),
+        content: const Text(
+          "Are you sure you want to remove this specific instance?",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -129,7 +163,10 @@ class ItemDetailsScreen extends StatelessWidget {
               try {
                 await provider.deleteInstance(id);
                 if (context.mounted) {
-                  MessageDialog.show(context, message: "Instance successfully removed!");
+                  MessageDialog.show(
+                    context,
+                    message: "Instance successfully removed!",
+                  );
                 }
               } catch (e) {
                 if (context.mounted) {
