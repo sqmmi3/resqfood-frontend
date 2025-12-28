@@ -217,6 +217,23 @@ class NotificationService {
       debugPrint("Error marking all as read: $e");
     }
   }
+
+  static Future<int> getUnreadCount(String jwtToken) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/notifications/unread-count'),
+        headers: {'Authorization': 'Bearer $jwtToken'},
+      );
+
+      if (response.statusCode == 200) {
+        return int.parse(response.body);
+      }
+      return 0;
+    } catch (e) {
+      debugPrint("Error fetching unread count: $e");
+      return 0;
+    }
+  }
 }
 
 @pragma('vm:entry-point')
