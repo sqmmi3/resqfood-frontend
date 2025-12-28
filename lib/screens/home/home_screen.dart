@@ -36,23 +36,21 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           userItemProvider.loading
-            ? const Center(child: CircularProgressIndicator())
-            : userItemProvider.items.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : userItemProvider.items.isEmpty
               ? const Center(child: Text('No items found.'))
               : ListView.builder(
-                itemCount: userItemProvider.items.length,
-                itemBuilder: (context, index) {
-                  final groupedItem = userItemProvider.items[index];
-                  return UserItemBar(groupedItem: groupedItem);
-                },
-              ),
-          
+                  itemCount: userItemProvider.items.length,
+                  itemBuilder: (context, index) {
+                    final groupedItem = userItemProvider.items[index];
+                    return UserItemBar(groupedItem: groupedItem);
+                  },
+                ),
+
           if (_isMenuOpen)
             GestureDetector(
               onTap: toggleMenu,
-              child: Container(
-                color: Colors.black.withValues(alpha: 0.3),
-              ),
+              child: Container(color: Colors.black.withValues(alpha: 0.3)),
             ),
         ],
       ),
