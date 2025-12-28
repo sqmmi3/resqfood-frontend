@@ -35,6 +35,8 @@ class ResQFoodTextField extends StatelessWidget{
   Widget build(BuildContext context) {
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return TextFormField(
       controller: controller,
@@ -43,7 +45,7 @@ class ResQFoodTextField extends StatelessWidget{
       onChanged: onChanged,
       readOnly: readOnly,
       onTap: () { onTap!(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
-      cursorColor: highContrast ? Colors.black : Colors.green,
+      cursorColor: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : colorScheme.primary,
       style: TextStyle(
         fontWeight: highContrast ? FontWeight.bold : FontWeight.normal,
         fontSize: 16,
@@ -55,7 +57,7 @@ class ResQFoodTextField extends StatelessWidget{
           ? defaultValue
           : "Enter $label",
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        floatingLabelStyle: TextStyle(color: highContrast ? Colors.black : Colors.green, fontWeight: FontWeight.bold, fontSize: highContrast ? 18 : 16),
+        floatingLabelStyle: TextStyle(color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white :Colors.black) : colorScheme.primary, fontWeight: FontWeight.bold, fontSize: highContrast ? 18 : 16),
         contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
         labelStyle: TextStyle(color: highContrast ? Colors.black : Colors.black54),
         enabledBorder: OutlineInputBorder(
@@ -64,11 +66,11 @@ class ResQFoodTextField extends StatelessWidget{
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-          borderSide: BorderSide(color: highContrast ? Colors.black : Colors.green, width: highContrast ? 3.0 : 2.0),
+          borderSide: BorderSide(color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : colorScheme.primary, width: highContrast ? 3.0 : 2.0),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-          borderSide: BorderSide(color: highContrast ? Colors.black : Colors.red, width: highContrast ? 2.5 : 1.0),
+          borderSide: BorderSide(color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white :Colors.black) : colorScheme.error, width: highContrast ? 2.5 : 1.0),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(highContrast ? 8 : 15),

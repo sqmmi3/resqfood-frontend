@@ -57,9 +57,12 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
   Widget build(BuildContext context) {
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: highContrast ? Colors.white : Colors.grey[50],
+      backgroundColor: highContrast
+        ? (theme.brightness == Brighntess.dark ? Colors.black : Colors.white)
+        : theme.colorScheme.surface,
       appBar: ResQFoodAppBar(
         onMenuTap: () {
           
@@ -81,8 +84,19 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
                 padding: const EdgeInsets.only(left: 8, top: 8),
                 child: TextButton.icon(
                   onPressed: () { Navigator.pop(context); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
-                  icon: Icon(Icons.arrow_back, color: highContrast ? Colors.black : Colors.green),
-                  label: Text("Go back", style: TextStyle(color: Colors.black, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: highContrast 
+                      ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black)
+                      : theme.colorScheme.primary
+                  ),
+                  label: Text(
+                    "Go back",
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: highContrast ? FontWeight.bold : FontWeight.normal
+                    )
+                  ),
                 ),
               ),
             ),
@@ -91,17 +105,17 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(child: Text("Add Item", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32, color: highContrast ? Colors.black : Colors.green.shade800))),
+                  Center(child: Text("Add Item", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32, color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : Colors.green.shade800))),
                   const SizedBox(height: 30),
-                  _buildSectionLabel("General Information", highContrast),
+                  _buildSectionLabel("General Information", highContrast, theme),
                   _buildAddField("Product name", _nameController, highContrast),
-                  _buildCategoryDropDown(highContrast, isHapticsEnabled),
+                  _buildCategoryDropDown(highContrast, isHapticsEnabled, theme),
 
                   const SizedBox(height: 30),
-                  _buildSectionLabel("Specific Information", highContrast),
+                  _buildSectionLabel("Specific Information", highContrast, theme),
                   _buildDateField("Expiry date", _expiryDateController, highContrast),
                   _buildAddField("Opened rule (opt)", _openedRuleController, highContrast, defaultValue: "3 days"),
-                  _buildDescriptionField(highContrast, isHapticsEnabled),
+                  _buildDescriptionField(highContrast, isHapticsEnabled, theme),
                   ResQFoodPrimaryButton(text: "Add to Inventory", onPressed: _handleSave),
                   const SizedBox(height: 60),
                 ],
@@ -113,13 +127,14 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     );
   }
 
-  Widget _buildSectionLabel(String text, bool highContrast) {
+  Widget _buildSectionLabel(String text, bool highContrast, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Text(text, 
         style: TextStyle(
           fontWeight: FontWeight.bold, 
           fontSize: 20,
+          color: theme.colorScheme.onSurface,
           decoration: highContrast ? TextDecoration.underline : null,
         )
       ),
@@ -142,7 +157,8 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     );
   }
 
-  Widget _buildCategoryDropDown(bool highContrast, bool isHapticsEnabled) {
+  Widget _buildCategoryDropDown(bool highContrast, bool isHapticsEnabled, ThemeData theme) {
+  final colorScheme = theme.colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -151,34 +167,36 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
         DropdownButtonFormField<String>(
           key: ValueKey(_selectedCategory),
           hint: const Text("Select a category"),
-          style: TextStyle(color: Colors.black, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal),
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+          dropDownColor: highContrast
+            ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
+            : theme.colorScheme.surface,
+          icon: const Icon(Icons.arrow_drop_down, color: colorScheme.onSurface),
           items: _categories.map((category) => DropdownMenuItem(value: category, child: Text(category.replaceAll('_', ' ')))).toList(),
           onTap: () { isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
           onChanged: (value) => setState(() => _selectedCategory = value),
           decoration:  InputDecoration(
             labelText: "Product category",
-            floatingLabelBehavior: FloatingLabelBehavior.always,
+            floatingLabelBehavior: highContrast ? FloatingLabelBehavior.always : FloatingLabelBehavior.auto,
             floatingLabelStyle: TextStyle(
-              color: highContrast ? Colors.black : Colors.green,
+              color: highContrast ? colorScheme.onSurface : colorScheme.primary,
               fontWeight: FontWeight.bold,
             ),
             labelStyle: TextStyle(color: highContrast ? Colors.black : Colors.black54),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-              borderSide: BorderSide(color: highContrast ? Colors.black : Colors.grey, width: highContrast ? 2.0 : 1.0),
+              borderSide: BorderSide(color: highContrast ? colorScheme.onSurface : Colors.grey, width: highContrast ? 2.0 : 1.0),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-              borderSide: BorderSide(color: highContrast ? Colors.black : Colors.green, width: highContrast ? 3.0 : 2.0),
+              borderSide: BorderSide(color: highContrast ? colorScheme.onSurface : colorScheme.primary, width: highContrast ? 3.0 : 2.0),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(highContrast? 8 : 15),
-              borderSide: BorderSide(color: highContrast? Colors.black : Colors.red, width: highContrast ? 2.5 : 1),
+              borderSide: BorderSide(color: highContrast? colorScheme.onSurface : Colors.red, width: highContrast ? 2.5 : 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-              borderSide: BorderSide(color: highContrast ? Colors.black : Colors.red, width: highContrast ? 3.0 : 2.0)
+              borderSide: BorderSide(color: highContrast ? colorScheme.onSurface : Colors.red, width: highContrast ? 3.0 : 2.0)
             ),
           ),
         ),
@@ -209,21 +227,6 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.black,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: Colors.black),
-            ),
-          ),
-          child: child!
-        );
-      },
     );
 
     if (picked != null) {

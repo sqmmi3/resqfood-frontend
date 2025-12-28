@@ -20,30 +20,34 @@ class ResQFoodAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    final highContrast = authProvider.highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
 
     return AppBar(
-      backgroundColor: Colors.white,
-      elevation: 2,
+      elevation: highContrast ? 4 : 2,
       leading: IconButton(
-        icon: const Icon(Icons.menu, color: Colors.black),
+        icon: const Icon(Icons.menu, color: highContrast ? (isDarkMode ? Colors.white : Colors.black) : theme.iconTheme.color,
         onPressed: () { onMenuTap!(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
       ),
       title: SizedBox(
-        height: 80,
+        height: 60,
         child: Image.asset(
           "assets/logo/resqfood_logo_notext.png",
           fit: BoxFit.contain,
+          color: isDarkMode ? null : Colors.white,
         ),
       ),
       centerTitle: true,
       actions: [
         IconButton(
-          icon: const Icon(Icons.notifications_none, color: Colors.black),
+          icon: const Icon(Icons.notifications_none),
           onPressed: () { onNotificationTap!(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
         ),
         IconButton(
-          icon: const Icon(Icons.account_circle, color: Colors.black),
+          icon: const Icon(Icons.account_circle),
           onPressed: () { onUserTap!(); isHapticsEnabled ? HapticFeedback. lightImpact() : null; },
         ),
         const SizedBox(width: 8),

@@ -32,9 +32,9 @@ class UserItemDetailCard extends StatelessWidget {
         ),
         const SizedBox(height: 10),
 
-        _buildInstanceField("Expiration date", dateformat.format(userItem.expirationDate), highContrast),
-        _buildInstanceField("Opened date (opt)", userItem.openedDate != null ? dateformat.format(userItem.openedDate!) : "Unopened", highContrast),
-        _buildInstanceField("Opened rule (opt)", userItem.openedRule != null ? "${userItem.openedRule} days" : "0 days", highContrast),
+        _buildInstanceField(context, "Expiration date", dateformat.format(userItem.expirationDate), highContrast),
+        _buildInstanceField(context, "Opened date (opt)", userItem.openedDate != null ? dateformat.format(userItem.openedDate!) : "Unopened", highContrast),
+        _buildInstanceField(context, "Opened rule (opt)", userItem.openedRule != null ? "${userItem.openedRule} days" : "0 days", highContrast),
 
         Text("Description (opt)", style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
         const SizedBox(height: 8),
@@ -44,7 +44,7 @@ class UserItemDetailCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
-            border: Border.all(color: Colors.black, width: highContrast ? 3.0 : 1.2),
+            border: Border.all(color: Theme.of(context).dividerColor, width: highContrast ? 3.0 : 1.2),
           ),
           child: Stack(
             children: [
@@ -57,7 +57,7 @@ class UserItemDetailCard extends StatelessWidget {
                 right: 0,
                 child: Text(
                   "${userItem.description?.length ?? 0}/128",
-                  style: TextStyle(fontSize: highContrast ? 14 : 10, color: highContrast ? Colors.black : Colors.grey),
+                  style: TextStyle(fontSize: highContrast ? 14 : 10, color: highContrast ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black) : Theme.of(context).hintColor,
                 ),
               )
             ],
@@ -68,14 +68,14 @@ class UserItemDetailCard extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: TextButton(
             onPressed: () { onDelete(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
-            child: Text("Remove this instance", style: TextStyle(color: highContrast ? Colors.black : Colors.red, fontSize: highContrast ? 14 : 12))),
+            child: Text("Remove this instance", style: TextStyle(color: highContrast ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black : Theme.of(context).colorScheme.error, fontSize: highContrast ? 14 : 12))),
         ),
         const SizedBox(height: 20),
       ],
     );
   }
 
-  Widget _buildInstanceField(String label, String value, bool highContrast) {
+  Widget _buildInstanceField(BuildContext context, String label, String value, bool highContrast) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Column(
@@ -84,7 +84,7 @@ class UserItemDetailCard extends StatelessWidget {
           Text(label, style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
           const SizedBox(height: 5),
           Text(value, style: TextStyle(fontSize: highContrast ? 16 : 14, fontWeight: highContrast ? FontWeight.w700 : FontWeight.w500)),
-          const Divider(color: Colors.black, thickness: 1.2),
+          const Divider(color: Theme.of(context).dividerColor, thickness: 1.2),
         ],
       ),
     );

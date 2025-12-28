@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -59,10 +56,21 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDhUoaTdviMtV1uPpv1fs3r9A4nAFEd5uM',
-    appId: '1:1006594396654:ios:a2b657862fdd232bcdfeff',
+    appId: '1:1006594396654:ios:95bfef844625e903cdfeff',
     messagingSenderId: '1006594396654',
     projectId: 'resqfood-f1ea7',
     storageBucket: 'resqfood-f1ea7.firebasestorage.app',
-    iosBundleId: 'com.example.frontend',
+    iosBundleId: 'com.mobile.team11.frontend',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAZCRbn2zzgJpJ_6rIaJ7B1r3urTDWYaa8',
+    appId: '1:1006594396654:web:dbb50856745800dbcdfeff',
+    messagingSenderId: '1006594396654',
+    projectId: 'resqfood-f1ea7',
+    authDomain: 'resqfood-f1ea7.firebaseapp.com',
+    storageBucket: 'resqfood-f1ea7.firebasestorage.app',
+    measurementId: 'G-60Q6NF1TEZ',
+  );
+
 }

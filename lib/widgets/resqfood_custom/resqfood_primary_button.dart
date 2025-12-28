@@ -19,6 +19,7 @@ class ResQFoodPrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return SizedBox(
       height: 58,

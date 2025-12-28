@@ -13,6 +13,7 @@ class UserItemBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final dateFormat = DateFormat('dd-MM-yyyy');
     final now = DateTime.now();
     final bool isExpired = groupedItem.earliestExpiration.isBefore(now);

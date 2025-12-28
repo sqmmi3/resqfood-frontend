@@ -20,6 +20,7 @@ class ItemDetailsScreen extends StatelessWidget {
     final userItemProvider = context.watch<UserItemProvider>();
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+    final theme = Theme.of(context);
 
     final groupedItem = userItemProvider.items.firstWhere(
       (element) => element.itemName == itemName,
@@ -38,7 +39,9 @@ class ItemDetailsScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: highContrast ? Colors.white : Colors.grey[50],
+      backgroundColor: highContrast 
+        ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
+        : theme.colorScheme.surface,
       appBar: ResQFoodAppBar(
         onMenuTap: () {
           
@@ -60,8 +63,19 @@ class ItemDetailsScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 8, top: 8),
                   child: TextButton.icon(
                     onPressed: () { Navigator.pop(context); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
-                    icon: Icon(Icons.arrow_back, color: highContrast ? Colors.black : Colors.green),
-                    label: Text("Go back", style: TextStyle(color: Colors.black, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: highContrast 
+                      ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black)
+                      : theme.colorScheme.onSurface,
+                    ),
+                    label: Text(
+                      "Go back",
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface,
+                        fontWeight: highContrast ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -75,9 +89,9 @@ class ItemDetailsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 30),
 
-                    _buildCommonField("Name", groupedItem.itemName, highContrast),
-                    _buildCommonField("Category", groupedItem.type, highContrast),
-                    _buildCommonField("Quantity", groupedItem.amount.toString(), highContrast),
+                    _buildCommonField(context, "Name", groupedItem.itemName, highContrast),
+                    _buildCommonField(context, "Category", groupedItem.type, highContrast),
+                    _buildCommonField(context, "Quantity", groupedItem.amount.toString(), highContrast),
                     
                     const SizedBox(height: 10),
 
@@ -102,16 +116,35 @@ class ItemDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCommonField(String label, String value, bool highContrast) {
+  Widget _buildCommonField(BuildContext context, String label, String value, bool highContrast) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: highContrast ? 18 : 16,
+              fontWeight: highContrast ? FontWeight.bold : FontWeight.normal,
+              color: theme.colorScheme.onSurface.withValues(alpha:0.8),
+            ),
+          ),
           const SizedBox(height: 5),
-          Text(value, style: TextStyle(fontSize: highContrast ? 16 : 14, fontWeight: highContrast ? FontWeight.w700 : FontWeight.w300)),
-          const Divider(color: Colors.black, thickness: 1),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: highContrast ? 16 : 14,
+              fontWeight: highContrast ? FontWeight.w700 : FontWeight.w300,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          const Divider(
+            color: highContrast
+              ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black)
+              : theme.dividerColor,
+            thickness: highContrast ? 2 : 1
+          ),
         ],
       ),
     );
@@ -143,9 +176,9 @@ class ItemDetailsScreen extends StatelessWidget {
                   );
                 }
               }
-              isHapticsEnabled ? HapticFeedback.lightImpact() : null;
+              isHapticsEnabled ? HapticFeedback.mediumImpact() : null;
             },
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            child: Text("Delete", style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight.bold)),
           ),
         ],
       ),

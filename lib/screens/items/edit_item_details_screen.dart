@@ -72,9 +72,12 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
     final userItemProvider = context.watch<UserItemProvider>();
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+    final theme = Theme.of(context)
 
     return Scaffold(
-      backgroundColor: highContrast ? Colors.white : Colors.grey[50],
+      backgroundColor: highContrast
+        ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white) 
+        : theme.colorScheme.surface,
       appBar: ResQFoodAppBar(
         onMenuTap: () {
           
@@ -96,8 +99,19 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                 padding: const EdgeInsets.only(left: 8, top: 8),
                 child: TextButton.icon(
                   onPressed: () { Navigator.pop(context); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
-                  icon: Icon(Icons.arrow_back, color: highContrast ? Colors.black : Colors.green),
-                  label: Text("Go back", style: TextStyle(color: Colors.black, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: highContrast
+                      ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black)
+                      : theme.colorScheme.onSurface
+                  ),
+                  label: Text(
+                    "Go back",
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: highContrast ? FontWeight.bold : FontWeight.normal
+                    )
+                  ),
                 ),
               ),
             ),
@@ -149,7 +163,15 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                           }
                           isHapticsEnabled ? HapticFeedback.lightImpact() : null;
                         },
-                        child: Text("Remove this instance", style: TextStyle(color: highContrast ? Colors.black : Colors.red, fontSize: highContrast ? 14 : 12))),
+                        child: Text(
+                          "Remove this instance",
+                          style: TextStyle(
+                            color: theme.colorScheme.error,
+                            fontWeight: highContrast ? FontWeight.bold : FontWeight.normal,
+                            fontSize: highContrast ? 14 : 12
+                          )
+                        )
+                      ),
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -190,7 +212,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
           controller: controller,
           onTap: () { isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
           decoration: InputDecoration(
-            border: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+            border: UnderlineInputBorder(borderSide: BorderSide(color: Theme.of(context).colorScheme.onSurface)),
           ),
         ),
         const SizedBox(height: 10),
@@ -199,6 +221,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
   }
 
   Widget _buildCategoryDropdown(bool highContrast, bool isHapticsEnabled) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -223,10 +246,10 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
               _categoryController.text = newValue!;
             });
           },
-          decoration: const InputDecoration(
-            border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+          decoration: InputDecoration(
+            border: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface)),
           ),
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+          icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurface),
           hint: const Text("Select a category"),
         ),
         const SizedBox(height: 10),
@@ -251,13 +274,14 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
             )
           ],
         ),
-        const Divider(color: Colors.black, thickness: 1),
+        const Divider(color: Theme.of(context).dividerColor, thickness: highContrast ? 2 : 1),
         const SizedBox(height: 10)
       ],
     );
   }
 
   Widget _buildDescriptionBox(TextEditingController controller, bool highContrast, bool isHapticsEnabled) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -265,7 +289,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
         const SizedBox(height: 8),
         Container(
           height: 120,
-          decoration: BoxDecoration(border: Border.all(color: Colors.black, width: highContrast ? 3.0 : 1.0), borderRadius: BorderRadius.circular( highContrast ? 8 : 15)),
+          decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.surface, width: highContrast ? 3.0 : 1.0), borderRadius: BorderRadius.circular( highContrast ? 8 : 15)),
           padding: const EdgeInsets.all(12),
           child: TextField(
             controller: controller,
@@ -284,21 +308,6 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.black,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: Colors.black),
-            ),
-          ),
-          child: child!
-        );
-      },
     );
 
     if (picked != null) {

@@ -29,7 +29,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
@@ -43,10 +42,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               DefaultTextStyle(
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: Theme.of(context).colorScheme.primary,
                   letterSpacing: 8,
                 ),
                 child: AnimatedTextKit(
@@ -94,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
               if (auth.status == AuthStatus.error)
                 Text(
                   auth.errorMessage ?? "Login failed",
-                  style: const TextStyle(color: Colors.red, fontSize: 15),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 15),
                 ),
 
               const SizedBox(height: 30),
@@ -127,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   Text(
                     "Don't have an account yet?",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
                   ),
                   InkWell(
                     onTap: () {
@@ -145,9 +144,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
-                          color: Colors.green,
+                          color: Theme.of(context).colorScheme.primary,
                           decoration: TextDecoration.underline,
-                          decorationColor: Colors.green,
+                          decorationColor: Theme.of(context).colorScheme.primary,
                           decorationThickness: 2,
                         ),
                       ),

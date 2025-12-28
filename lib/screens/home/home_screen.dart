@@ -37,9 +37,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final isLeftHanded = authProvider.isLeftHanded;
     final highContrast = authProvider.highContrast;
     final isHapticsEnabled = authProvider.hapticsEnabled;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: highContrast ? Colors.white : Colors.grey[50],
+      backgroundColor: highContrast
+        ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
+        : theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.3),
       body: Stack(
         children: [
           userItemProvider.loading
@@ -78,15 +81,19 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 60,
             width: 60,
             child: FloatingActionButton(
-              backgroundColor: highContrast ? Colors.black : Colors.green,
+              backgroundColor: highContrast 
+                ? (theme.brightness == Brightness.dark ? Colors.white)
+                : theme.colorscheme.primary,
               elevation: highContrast ? 0 : 6,
               shape: CircleBorder(
-                side: highContrast ? const BorderSide(color: Colors.white, width: 2) : BorderSide.none
+                side: highContrast ? const BorderSide(color: theme.brightness == Brightness.dark ? Colors.black : Colors.white, width: 2) : BorderSide.none
               ),
               onPressed: () { toggleMenu(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
               child: Icon(
                 _isMenuOpen ? Icons.close : Icons.add,
-                color: Colors.white,
+                color: highContrast
+                  ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white),
+                  : theme.colorScheme.onPrimary,
                 size: 35,
               ),
             ),
@@ -97,6 +104,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildExpansionMenu(BuildContext context, bool isLeftHanded, bool highContrast, bool isHapticsEnabled) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Container(
       width: 200,
       margin: EdgeInsets.only(
@@ -104,9 +114,14 @@ class _HomeScreenState extends State<HomeScreen> {
         left: isLeftHanded ? 10 : 0,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: highContrast
+          ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
+          : colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black, width: highContrast ? 3.0 : 1.5),
+        border: Border.all(
+          color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : colorScheme.outline,
+          width: highContrast ? 3.0 : 1.5,
+        ),
         boxShadow: highContrast ? null : [
           const BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 4))
         ],
@@ -118,7 +133,11 @@ class _HomeScreenState extends State<HomeScreen> {
             // TODO
             isHapticsEnabled ? HapticFeedback.lightImpact() : null;
           }, highContrast),
-          const Divider(height: 1, color: Colors.black, thickness: 1.5),
+          const Divider(
+            height: 1,
+            color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : colorScheme.outline,
+            thickness: highContrast ? 2.5 : 1.5,
+          ),
           _menuItem("Add Manually", () {
             toggleMenu();
             Navigator.push(
