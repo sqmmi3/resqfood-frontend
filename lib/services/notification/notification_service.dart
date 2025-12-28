@@ -199,6 +199,24 @@ class NotificationService {
       rethrow;
     }
   }
+
+  static Future<void> markAllAsRead(String jwtToken) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/notifications/read-all'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwtToken',
+        },
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to mark all as read');
+      }
+    } catch (e) {
+      debugPrint("Error marking all as read: $e");
+    }
+  }
 }
 
 @pragma('vm:entry-point')
