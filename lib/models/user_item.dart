@@ -7,6 +7,7 @@ class UserItem {
   final DateTime? openedDate;
   final int? openedRule;
   final String? description;
+  final String addedBy;
 
   UserItem({
     this.id,
@@ -17,6 +18,7 @@ class UserItem {
     this.openedDate,
     this.openedRule,
     this.description,
+    this.addedBy = "Me",
   });
 
   factory UserItem.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class UserItem {
       openedDate: json['openedDate'] != null ? DateTime.parse(json['openedDate']) : null,
       openedRule: json['openedRule'],
       description: json['description'],
+      addedBy: json['addedBy'] ?? 'Unknown',
     );
   }
 
