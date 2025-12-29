@@ -15,7 +15,18 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ManualAddItemScreen extends StatefulWidget {
-  const ManualAddItemScreen({super.key});
+  final String? initialName;
+  final String? initialBarcode;
+  final String? initialCategory;
+  final String? initialOpenedRule;
+
+  const ManualAddItemScreen({
+    super.key,
+    this.initialName,
+    this.initialBarcode,
+    this.initialCategory,
+    this.initialOpenedRule,
+  });
 
   @override
   State<ManualAddItemScreen> createState() => _ManualAddItemScreenState();
@@ -24,6 +35,7 @@ class ManualAddItemScreen extends StatefulWidget {
 class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
   final dateformat = DateFormat('dd-MM-yyyy');
   late TextEditingController _nameController;
+  late TextEditingController _barcodeController;
   String? _selectedCategory;
 
   final List<String> _categories = [
@@ -51,9 +63,13 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
+    _nameController = TextEditingController(text: widget.initialName);
+    _barcodeController = TextEditingController(text: widget.initialBarcode);
+    if (widget.initialCategory != null && _categories.contains(widget.initialCategory)) {
+      _selectedCategory = widget.initialCategory;
+    }
     _expiryDateController = TextEditingController();
-    _openedRuleController = TextEditingController();
+    _openedRuleController = TextEditingController(text: widget.initialOpenedRule);
     _descriptionController = TextEditingController();
     _descriptionController.addListener(() {
       setState(() {});
@@ -140,6 +156,8 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
                   const SizedBox(height: 30),
                   _buildSectionLabel("General Information", highContrast, theme),
                   _buildAddField("Product name", _nameController, highContrast),
+                  if (_barcodeController.text.isNotEmpty) 
+                    _buildAddField("Scanned Barcode", _barcodeController, highContrast, isReadOnly: true),
                   _buildCategoryDropDown(highContrast, isHapticsEnabled, theme),
 
                   const SizedBox(height: 30),
@@ -172,7 +190,7 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     );
   }
 
-  Widget _buildAddField(String label, TextEditingController controller, bool highContrast, {String? defaultValue}) {
+  Widget _buildAddField(String label, TextEditingController controller, bool highContrast, {String? defaultValue, bool isReadOnly = false}) {
     if (defaultValue != null && controller.text.isEmpty) {
       controller.text = defaultValue;
     }
@@ -182,7 +200,7 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
       children: [
         Text(label, style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
         const SizedBox(height: 20),
-        ResQFoodTextField(label: label, defaultValue: defaultValue, controller: controller),
+        ResQFoodTextField(label: label, defaultValue: defaultValue, controller: controller, readOnly: isReadOnly),
         const SizedBox(height: 10),
       ],
     );
@@ -197,6 +215,7 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
         Text("Category", style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
         const SizedBox(height: 20),
         DropdownButtonFormField<String>(
+          initialValue: _selectedCategory,
           key: ValueKey(_selectedCategory),
           hint: const Text("Select a category"),
           dropdownColor: highContrast
