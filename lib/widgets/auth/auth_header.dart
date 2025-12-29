@@ -16,10 +16,10 @@ class AuthHeader extends StatelessWidget {
     return Column(
       children: [
         DefaultTextStyle(
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black,
+                  color: Theme.of(context).colorScheme.onSurface,
                   letterSpacing: 2,
                 ),
                 child: AnimatedTextKit(
@@ -34,10 +34,10 @@ class AuthHeader extends StatelessWidget {
               ),
         const SizedBox(height: 5),
         DefaultTextStyle(
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.normal,
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.onSurface,
             letterSpacing: 2,
           ),
           child: AnimatedTextKit(

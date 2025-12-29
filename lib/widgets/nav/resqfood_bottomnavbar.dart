@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/providers/auth/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class ResQFoodBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -12,14 +14,16 @@ class ResQFoodBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final highContrast = context.watch<AuthProvider>().highContrast;
+    final theme = Theme.of(context);
+
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
-      backgroundColor: Colors.white,
-      selectedItemColor: Colors.green,
-      unselectedItemColor: Colors.grey.shade600,
+      backgroundColor: theme.brightness == Brightness.dark ? Colors.black : Colors.white,
+      selectedItemColor: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : theme.colorScheme.primary,
+      unselectedItemColor: Colors.grey.shade500,
       showUnselectedLabels: true,
-      type: BottomNavigationBarType.fixed,
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),

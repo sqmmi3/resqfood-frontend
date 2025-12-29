@@ -1,5 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/screens/auth/register_screen.dart';
 import 'package:frontend/screens/main_screen.dart';
@@ -25,9 +26,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
+    final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
@@ -41,10 +42,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               DefaultTextStyle(
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: Theme.of(context).colorScheme.primary,
                   letterSpacing: 8,
                 ),
                 child: AnimatedTextKit(
@@ -76,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: usernameController
               ),
 
-              SizedBox(height: 10),
+              SizedBox(height: 20),
 
               ResQFoodTextField(
                 label: 'Password',
@@ -92,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
               if (auth.status == AuthStatus.error)
                 Text(
                   auth.errorMessage ?? "Login failed",
-                  style: const TextStyle(color: Colors.red, fontSize: 15),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 15),
                 ),
 
               const SizedBox(height: 30),
@@ -125,10 +126,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   Text(
                     "Don't have an account yet?",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
                   ),
                   InkWell(
                     onTap: () {
+                      isHapticsEnabled ? HapticFeedback.lightImpact() : null;
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const RegisterScreen()),
@@ -142,9 +144,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
-                          color: Colors.green,
+                          color: Theme.of(context).colorScheme.primary,
                           decoration: TextDecoration.underline,
-                          decorationColor: Colors.green,
+                          decorationColor: Theme.of(context).colorScheme.primary,
                           decorationThickness: 2,
                         ),
                       ),

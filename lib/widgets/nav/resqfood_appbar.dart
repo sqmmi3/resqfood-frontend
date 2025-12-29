@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:frontend/providers/auth/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class ResQFoodAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onMenuTap;
@@ -19,18 +22,25 @@ class ResQFoodAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    final highContrast = authProvider.highContrast;
+    final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return AppBar(
-      backgroundColor: Colors.white,
-      elevation: 2,
+      backgroundColor: isDarkMode ? Colors.black : Colors.white,
+      elevation: highContrast ? 4 : 2,
       leading: IconButton(
-        icon: const Icon(Icons.menu, color: Colors.black),
-        onPressed: onMenuTap,
+        icon: Icon(Icons.menu, color: highContrast ? (isDarkMode ? Colors.white : Colors.black) : theme.iconTheme.color),
+        onPressed: () { onMenuTap!(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
       ),
       title: SizedBox(
-        height: 80,
+        height: 60,
         child: Image.asset(
           "assets/logo/resqfood_logo_notext.png",
           fit: BoxFit.contain,
+          color: highContrast ? (isDarkMode ? Colors.white : Colors.black) : theme.colorScheme.primary,
         ),
       ),
       centerTitle: true,
@@ -39,8 +49,8 @@ class ResQFoodAppBar extends StatelessWidget implements PreferredSizeWidget {
           alignment: Alignment.center,
           children: [
             IconButton(
-              icon: const Icon(Icons.notifications_none, color: Colors.black),
-              onPressed: onNotificationTap,
+              icon: Icon(Icons.notifications_none, color: highContrast ? (isDarkMode ? Colors.white : Colors.black) : theme.iconTheme.color),
+              onPressed: () { onNotificationTap!(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
             ),
             if (hasUnreadNotifications)
               Positioned(
@@ -61,8 +71,8 @@ class ResQFoodAppBar extends StatelessWidget implements PreferredSizeWidget {
           ],
         ),
         IconButton(
-          icon: const Icon(Icons.account_circle, color: Colors.black),
-          onPressed: onUserTap,
+          icon: Icon(Icons.account_circle, color: highContrast ? (isDarkMode ? Colors.white : Colors.black) : theme.iconTheme.color),
+          onPressed: () { onUserTap!(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
         ),
         const SizedBox(width: 8),
       ],

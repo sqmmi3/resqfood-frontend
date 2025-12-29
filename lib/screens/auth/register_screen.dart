@@ -1,5 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/screens/auth/login_screen.dart';
 import 'package:frontend/widgets/auth/auth_header.dart';
@@ -66,9 +67,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
+    final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
@@ -82,10 +83,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
 
               DefaultTextStyle(
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: Theme.of(context).colorScheme.primary,
                   letterSpacing: 8,
                 ),
                 child: AnimatedTextKit(
@@ -123,7 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       onChanged: (_) => auth.resetError(),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
                     ResQFoodTextField(
                       label: 'Email',
@@ -132,7 +133,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       onChanged: (_) => auth.resetError(),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
                     ResQFoodTextField(
                       label: 'Password',
@@ -145,7 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       onChanged: (_) => auth.resetError(),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
                     ResQFoodTextField(
                       label: 'Confirm password',
@@ -163,7 +164,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         padding: const EdgeInsets.only(top: 10),
                         child: Text(
                           auth.errorMessage ?? "Registration failed",
-                          style: const TextStyle(color: Colors.red, fontSize: 15),
+                          style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 15),
                         ),
                       ),
                     
@@ -202,12 +203,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           'Already have an account?',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
                         ),
                         InkWell(
                           onTap: () {
+                            isHapticsEnabled ? HapticFeedback.lightImpact() : null;
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -221,9 +223,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
-                                color: Colors.green,
+                                color: Theme.of(context).colorScheme.primary,
                                 decoration: TextDecoration.underline,
-                                decorationColor: Colors.green,
+                                decorationColor: Theme.of(context).colorScheme.primary,
                                 decorationThickness: 2,
                               ),
                             ),

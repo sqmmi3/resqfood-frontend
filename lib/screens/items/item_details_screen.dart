@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/models/grouped_user_item.dart';
 import 'package:frontend/providers/notification/notification_provider.dart';
+import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
 import 'package:frontend/screens/items/edit_item_details_screen.dart';
 import 'package:frontend/screens/notifications/notifications_screen.dart';
@@ -19,6 +21,10 @@ class ItemDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final userItemProvider = context.watch<UserItemProvider>();
     final notificationProvider = context.watch<NotificationProvider>();
+    final highContrast = context.watch<AuthProvider>().highContrast;
+    final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     final groupedItem = userItemProvider.items.firstWhere(
       (element) => element.itemName == itemName,
@@ -39,6 +45,9 @@ class ItemDetailsScreen extends StatelessWidget {
     }
 
     return Scaffold(
+      backgroundColor: highContrast 
+        ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
+        : theme.colorScheme.surface,
       appBar: ResQFoodAppBar(
         onMenuTap: () {},
         onNotificationTap: () {
@@ -50,59 +59,58 @@ class ItemDetailsScreen extends StatelessWidget {
         },
         onUserTap: () {},
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8, top: 8),
-                child: TextButton.icon(
-                  onPressed: () => {Navigator.pop(context)},
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  label: const Text(
-                    "Go back",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Text(
-                      groupedItem.itemName,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+      body: 
+        SingleChildScrollView(
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8, top: 8),
+                  child: TextButton.icon(
+                    onPressed: () { Navigator.pop(context); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: highContrast 
+                      ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black)
+                      : theme.colorScheme.onSurface,
+                    ),
+                    label: Text(
+                      "Go back",
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface,
+                        fontWeight: highContrast ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-
-                  _buildCommonField("Name", groupedItem.itemName),
-                  _buildCommonField("Category", groupedItem.type),
-                  _buildCommonField("Quantity", groupedItem.amount.toString()),
-
-                  const SizedBox(height: 10),
-
-                  for (int i = 0; i < groupedItem.allInstances.length; i++)
-                    UserItemDetailCard(
-                      userItem: groupedItem.allInstances[i],
-                      index: i + 1,
-                      onDelete: () {
-                        _showDeleteConfirmation(
-                          context,
-                          userItemProvider,
-                          groupedItem.allInstances[i].id!,
-                          "${groupedItem.itemName.toString()} #${i + 1}",
-                        );
-                      },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(groupedItem.itemName, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: highContrast ? (isDark ? Colors.white :Colors.black) : theme.colorScheme.primary)),
                     ),
-                ],
+                    const SizedBox(height: 30),
+
+                    _buildCommonField(context, "Name", groupedItem.itemName, highContrast),
+                    _buildCommonField(context, "Category", groupedItem.type, highContrast),
+                    _buildCommonField(context, "Quantity", groupedItem.amount.toString(), highContrast),
+                    
+                    const SizedBox(height: 10),
+
+                    for (int i = 0; i < groupedItem.allInstances.length; i++)
+                      UserItemDetailCard(
+                        userItem: groupedItem.allInstances[i],
+                        index: i + 1,
+                        onDelete: () {
+                          _showDeleteConfirmation(context, userItemProvider, groupedItem.allInstances[i].id!, "${groupedItem.itemName.toString()} #${i + 1}", isHapticsEnabled, highContrast);
+                        }
+                      ),
+                  ],
+                ),
               ),
             ),
             Padding(
@@ -127,44 +135,63 @@ class ItemDetailsScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 
-  Widget _buildCommonField(String label, String value) {
+  Widget _buildCommonField(BuildContext context, String label, String value, bool highContrast) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 16)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: highContrast ? 18 : 16,
+              fontWeight: highContrast ? FontWeight.bold : FontWeight.normal,
+              color: theme.colorScheme.onSurface.withValues(alpha:0.8),
+            ),
+          ),
+          const SizedBox(height: 5),
           Text(
             value,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
+            style: TextStyle(
+              fontSize: highContrast ? 16 : 14,
+              fontWeight: highContrast ? FontWeight.w700 : FontWeight.w300,
+              color: theme.colorScheme.onSurface,
+            ),
           ),
-          const Divider(color: Colors.black, thickness: 1),
+          Divider(
+            color: highContrast
+              ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black)
+              : theme.dividerColor,
+            thickness: highContrast ? 2 : 1
+          ),
         ],
       ),
     );
   }
 
-  void _showDeleteConfirmation(
-    BuildContext context,
-    UserItemProvider provider,
-    int id,
-    String instanceTitle,
-  ) {
+  void _showDeleteConfirmation(BuildContext context, UserItemProvider provider, int id, String instanceTitle, bool isHapticsEnabled, bool highContrast) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: highContrast ? (isDark ? Colors.black : Colors.white) : theme.colorScheme.surface,
+        shape: Border.all(
+          color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.transparent
+        ),
         title: Text("Delete $instanceTitle?"),
         content: const Text(
           "Are you sure you want to remove this specific instance?",
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            onPressed: () { Navigator.pop(context); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
+            child: Text("Cancel", style: TextStyle(color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary)),
           ),
           TextButton(
             onPressed: () async {
@@ -184,8 +211,9 @@ class ItemDetailsScreen extends StatelessWidget {
                   );
                 }
               }
+              isHapticsEnabled ? HapticFeedback.mediumImpact() : null;
             },
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            child: Text("Delete", style: TextStyle(color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.error, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

@@ -38,8 +38,8 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    _storedJwt = null;
     await storage.delete(key: "auth_token");
+    _storedJwt = null;
   }
 
   Future<RegisterResponse> register(String username, String email, String password) async {

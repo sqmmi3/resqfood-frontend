@@ -22,6 +22,47 @@ class AuthProvider extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  bool _isLeftHanded = false;
+  bool get isLeftHanded => _isLeftHanded;
+
+  bool _highContrast = false;
+  bool get highContrast => _highContrast;
+
+  bool _isHighVerbosity = false;
+  bool get isHighVerbosity => _isHighVerbosity;
+
+  bool _hapticsEnabled = false;
+  bool get hapticsEnabled => _hapticsEnabled;
+
+  double _fontSizeFactor = 1.0;
+  double get fontSizeFactor => _fontSizeFactor;
+
+  void setHandedness({required bool isLeft}) {
+    _isLeftHanded = isLeft;
+    notifyListeners();
+  }
+
+  void setHighContrast(bool value) {
+    _highContrast = value;
+    notifyListeners();
+  }
+
+  void setHighVerbosity(bool value) {
+    _isHighVerbosity = value;
+    notifyListeners();
+  }
+
+
+  void setHaptics(bool value) {
+    _hapticsEnabled = value;
+    notifyListeners();
+  }
+
+  void setFontSize(double value) {
+    _fontSizeFactor = value;
+    notifyListeners();
+  }
+
   Future<void> login(String username, String password, {VoidCallback? onSuccess}) async {
     _status = AuthStatus.loading;
     notifyListeners();
@@ -70,15 +111,15 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  void logout() async {
-    await _authService.logout();
+  Future<void> logout() async {
     final fcmToken = await NotificationService.getDeviceToken();
-    if (fcmToken != null) {
-      try {
+    try {
+      if (fcmToken != null) {
         await _authService.removeDeviceToken(fcmToken);
-      } catch (_) {
-        debugPrint("Failed to remove FCM token from backend");
       }
+      await _authService.logout();
+    } catch (e) {
+        debugPrint("Failed to remove FCM token from backend: $e");
     }
 
     _user =  null;
@@ -89,5 +130,16 @@ class AuthProvider extends ChangeNotifier {
   void resetError() {
     _errorMessage = null;
     notifyListeners();
+  }
+
+  void updateHouseholdCode(String? code) {
+    if (_user != null) {
+      _user = LoginResponse(
+        token: _user!.token,
+        username: _user!.username,
+        householdCode: code,
+      );
+      notifyListeners();
+    }
   }
 }
