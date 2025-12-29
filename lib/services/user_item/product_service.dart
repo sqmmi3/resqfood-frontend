@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 class ProductService {
   Future<Map<String, String>?> fetchProductData(String barcode) async {
     final url = Uri.parse(
-      "https://world.openfoodfacts.org/api/v2/product/$barcode.json?fields=product_name,image_front_url"
+      "https://world.openfoodfacts.org/api/v2/product/$barcode.json?fields=product_name,image_front_url,categories"
     );
 
     try {
@@ -18,6 +18,8 @@ class ProductService {
 
           final String category = _mapToAppCategory(rawCategories);
           final int ruleDays = _getOpenedRuleForCategory(category);
+
+          debugPrint(response.body.toString());
 
           return {
             'name': data['product']['product_name'] ?? "Unknown product",
@@ -34,13 +36,15 @@ class ProductService {
   }
 
   String _mapToAppCategory(String raw) {
+    debugPrint(raw);
     final text = raw.toUpperCase();
+    if ((text.contains("GRAPES") || text.contains("APPLE") || text.contains("BANANA") || text.contains("KIWI") || text.contains("ORANGE")) && !(text.contains("CARBONATED") || text.contains("SODA") || text.contains("DRINK") || text.contains("WATER") || text.contains("JUICE"))) return "FRUIT";
+    if ((text.contains("BEVERAGE") || text.contains("SODA") || text.contains("DRINK") || text.contains("WATER") || text.contains("JUICE")) && !text.contains("CHOCOLATE")) return "BEVERAGE";
     if (text.contains("FRUIT")) return "FRUIT";
     if (text.contains("VEGETABLE") || text.contains("PLANT-BASED")) return "VEGETABLE";
     if (text.contains("DAIRY") || text.contains("MILK") || text.contains("CHEESE") || text.contains("YOGURT")) return "DAIRY";
     if (text.contains("MEAT") || text.contains("CHICKEN") || text.contains("FISH") || text.contains("PROTEIN")) return "PROTEIN";
-    if (text.contains("BEVERAGE") || text.contains("SODA") || text.contains("DRINK") || text.contains("WATER") || text.contains("JUICE")) return "BEVERAGE";
-    if (text.contains("SWEET") || text.contains("CHOCOLATE") || text.contains("DESSERT") || text.contains("BISCUIT") || text.contains("SNACK")) return "SWEETS";
+    if ((text.contains("SWEET") || text.contains("CHOCOLATE") || text.contains("DESSERT") || text.contains("BISCUIT") || text.contains("SNACK")) && !text.contains("HAZELNUTS")) return "SWEETS";
     if (text.contains("GRAIN") || text.contains("CEREAL") || text.contains("PASTA") || text.contains("RICE") || text.contains("BREAD")) return "GRAIN";
     if (text.contains("FROZEN")) return "FROZEN";
     if (text.contains("CANNED")) return "CANNED";

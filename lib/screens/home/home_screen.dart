@@ -151,6 +151,9 @@ class _HomeScreenState extends State<HomeScreen> {
               final String? initialCategory = productData?['category'];
               final String? initialOpenedRule = productData?['openedRule'];
 
+              debugPrint(initialName);
+              debugPrint(initialCategory);
+
               if (context.mounted) {
                 Navigator.pop(context);
 
