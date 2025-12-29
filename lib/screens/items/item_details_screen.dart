@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/models/grouped_user_item.dart';
+import 'package:frontend/providers/notification/notification_provider.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
 import 'package:frontend/screens/items/edit_item_details_screen.dart';
+import 'package:frontend/screens/notifications/notifications_screen.dart';
 import 'package:frontend/widgets/message_dialog.dart';
 import 'package:frontend/widgets/resqfood_custom/resqfood_primary_button.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
@@ -18,6 +20,7 @@ class ItemDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userItemProvider = context.watch<UserItemProvider>();
+    final notificationProvider = context.watch<NotificationProvider>();
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
     final theme = Theme.of(context);
@@ -35,7 +38,9 @@ class ItemDetailsScreen extends StatelessWidget {
     );
 
     if (groupedItem.allInstances.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.pop(context));
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => Navigator.pop(context),
+      );
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -44,15 +49,15 @@ class ItemDetailsScreen extends StatelessWidget {
         ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
         : theme.colorScheme.surface,
       appBar: ResQFoodAppBar(
-        onMenuTap: () {
-          
-        },
+        onMenuTap: () {},
         onNotificationTap: () {
-
+          notificationProvider.setUnread(false);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationScreen()),
+          );
         },
-        onUserTap: () {
-          
-        },
+        onUserTap: () {},
       ),
       body: 
         SingleChildScrollView(
@@ -107,12 +112,28 @@ class ItemDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 50, top: 10),
-                child: ResQFoodPrimaryButton(text: "Edit", onPressed: () => {Navigator.push(context, MaterialPageRoute(builder: (context) => EditItemDetailsScreen(groupedUserItem: groupedItem)))}),
-              )
-            ],
-          ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+                bottom: 50,
+                top: 10,
+              ),
+              child: ResQFoodPrimaryButton(
+                text: "Edit",
+                onPressed: () => {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          EditItemDetailsScreen(groupedUserItem: groupedItem),
+                    ),
+                  ),
+                },
+              ),
+            ),
+          ],
         ),
     );
   }
@@ -164,7 +185,9 @@ class ItemDetailsScreen extends StatelessWidget {
           color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.transparent
         ),
         title: Text("Delete $instanceTitle?"),
-        content: const Text("Are you sure you want to remove this specific instance?"),
+        content: const Text(
+          "Are you sure you want to remove this specific instance?",
+        ),
         actions: [
           TextButton(
             onPressed: () { Navigator.pop(context); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
@@ -176,7 +199,10 @@ class ItemDetailsScreen extends StatelessWidget {
               try {
                 await provider.deleteInstance(id);
                 if (context.mounted) {
-                  MessageDialog.show(context, message: "Instance successfully removed!");
+                  MessageDialog.show(
+                    context,
+                    message: "Instance successfully removed!",
+                  );
                 }
               } catch (e) {
                 if (context.mounted) {

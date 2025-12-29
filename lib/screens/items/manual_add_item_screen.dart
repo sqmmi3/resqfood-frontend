@@ -1,8 +1,11 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/models/user_item.dart';
+import 'package:frontend/providers/notification/notification_provider.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
+import 'package:frontend/screens/notifications/notifications_screen.dart';
 import 'package:frontend/widgets/message_dialog.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
 import 'package:frontend/widgets/resqfood_custom/resqfood_primary_button.dart';
@@ -23,9 +26,19 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
   String? _selectedCategory;
 
   final List<String> _categories = [
-    'FRUIT', 'VEGETABLE', 'GRAIN', 'PROTEIN', 'DAIRY',
-    'SWEETS', 'BEVERAGE', 'READY_MEAL', 'SPICE',
-    'BAKING', 'FROZEN', 'CANNED', 'PANTRY'
+    'FRUIT',
+    'VEGETABLE',
+    'GRAIN',
+    'PROTEIN',
+    'DAIRY',
+    'SWEETS',
+    'BEVERAGE',
+    'READY_MEAL',
+    'SPICE',
+    'BAKING',
+    'FROZEN',
+    'CANNED',
+    'PANTRY',
   ];
 
   late TextEditingController _expiryDateController;
@@ -34,14 +47,23 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
 
   @override
   void initState() {
-   super.initState();
-   _nameController = TextEditingController();
-   _expiryDateController = TextEditingController();
-   _openedRuleController = TextEditingController();
-   _descriptionController = TextEditingController();
-   _descriptionController.addListener(() {
-    setState(() {});
-   });
+    super.initState();
+    _nameController = TextEditingController();
+    _expiryDateController = TextEditingController();
+    _openedRuleController = TextEditingController();
+    _descriptionController = TextEditingController();
+    _descriptionController.addListener(() {
+      setState(() {});
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotificationProvider>().checkUnreadStatus();
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (mounted) {
+        context.read<NotificationProvider>().setUnread(true);
+      }
+    });
   }
 
   @override
@@ -55,6 +77,7 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final notificationProvider = context.watch<NotificationProvider>();
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
     final theme = Theme.of(context);
@@ -65,17 +88,17 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
         ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
         : theme.colorScheme.surface,
       appBar: ResQFoodAppBar(
-        onMenuTap: () {
-          
-        },
+        onMenuTap: () {},
         onNotificationTap: () {
-          
+          notificationProvider.setUnread(false);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationScreen()),
+          );
         },
-        onUserTap: () {
-          
-        },
+        onUserTap: () {},
       ),
-      body: SingleChildScrollView( 
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -122,9 +145,9 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
                 ],
               ),
             ),
-          ]
-        )
-      )
+          ],
+        ),
+      ),
     );
   }
 
@@ -176,7 +199,7 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
           items: _categories.map((category) => DropdownMenuItem(value: category, child: Text(category.replaceAll('_', ' ')))).toList(),
           onTap: () { isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
           onChanged: (value) => setState(() => _selectedCategory = value),
-          decoration:  InputDecoration(
+          decoration: InputDecoration(
             labelText: "Product category",
             floatingLabelBehavior: highContrast ? FloatingLabelBehavior.always : FloatingLabelBehavior.auto,
             floatingLabelStyle: TextStyle(
@@ -223,7 +246,10 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDate(
+    BuildContext context,
+    TextEditingController controller,
+  ) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -303,7 +329,9 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
       final newItem = UserItem(
         itemName: _nameController.text.trim(),
         type: _selectedCategory!,
-        expirationDate: DateFormat('dd-MM-yyyy').parse(_expiryDateController.text),
+        expirationDate: DateFormat(
+          'dd-MM-yyyy',
+        ).parse(_expiryDateController.text),
         openedRule: rule,
         description: _descriptionController.text.trim(),
       );
@@ -314,7 +342,10 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
 
       if (mounted) {
         MessageDialog.show(context, message: "Item successfully added!");
-        Future.delayed(const Duration(milliseconds: 1000), () => Navigator.pop(context));
+        Future.delayed(
+          const Duration(milliseconds: 1000),
+          () => Navigator.pop(context),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -341,7 +372,9 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
       throw Exception("Expiry date is required.");
     }
 
-    DateTime expiry = DateFormat('dd-MM-yyyy').parse(_expiryDateController.text);
+    DateTime expiry = DateFormat(
+      'dd-MM-yyyy',
+    ).parse(_expiryDateController.text);
     if (expiry.isBefore(DateTime.now().subtract(const Duration(days: 1)))) {
       throw Exception("The expiry date cannot be in the past.");
     }

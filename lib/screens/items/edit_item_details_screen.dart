@@ -1,9 +1,12 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/models/grouped_user_item.dart';
 import 'package:frontend/models/user_item.dart';
+import 'package:frontend/providers/notification/notification_provider.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
+import 'package:frontend/screens/notifications/notifications_screen.dart';
 import 'package:frontend/widgets/message_dialog.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
 import 'package:frontend/widgets/resqfood_custom/resqfood_primary_button.dart';
@@ -22,9 +25,19 @@ class EditItemDetailsScreen extends StatefulWidget {
 
 class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
   final List<String> _categories = [
-    'FRUIT', 'VEGETABLE', 'GRAIN', 'PROTEIN', 'DAIRY',
-    'SWEETS', 'BEVERAGE', 'READY_MEAL', 'SPICE',
-    'BAKING', 'FROZEN', 'CANNED', 'PANTRY'
+    'FRUIT',
+    'VEGETABLE',
+    'GRAIN',
+    'PROTEIN',
+    'DAIRY',
+    'SWEETS',
+    'BEVERAGE',
+    'READY_MEAL',
+    'SPICE',
+    'BAKING',
+    'FROZEN',
+    'CANNED',
+    'PANTRY',
   ];
 
   late TextEditingController _nameController;
@@ -39,37 +52,76 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.groupedUserItem.itemName);
-    _categoryController = TextEditingController(text: widget.groupedUserItem.type);
+    _nameController = TextEditingController(
+      text: widget.groupedUserItem.itemName,
+    );
+    _categoryController = TextEditingController(
+      text: widget.groupedUserItem.type,
+    );
     _quantity = widget.groupedUserItem.amount;
 
     for (var item in widget.groupedUserItem.allInstances) {
       _addInstanceControllers(item);
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotificationProvider>().checkUnreadStatus();
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (mounted) {
+        context.read<NotificationProvider>().setUnread(true);
+      }
+    });
   }
 
   void _addInstanceControllers([UserItem? item]) {
     final dateformat = DateFormat('dd-MM-yyyy');
-    _expirationControllers.add(TextEditingController(text: item != null ? dateformat.format(item.expirationDate) : ''));
-    _openedDateControllers.add(TextEditingController(text: item?.openedDate != null ? dateformat.format(item!.openedDate!) : 'Unopened'));
-    _openedRuleControllers.add(TextEditingController(text: item?.openedRule != null ? "${item!.openedRule} days" : "3 days"));
-    _descriptionControllers.add(TextEditingController(text: item?.description ?? ''));
+    _expirationControllers.add(
+      TextEditingController(
+        text: item != null ? dateformat.format(item.expirationDate) : '',
+      ),
+    );
+    _openedDateControllers.add(
+      TextEditingController(
+        text: item?.openedDate != null
+            ? dateformat.format(item!.openedDate!)
+            : 'Unopened',
+      ),
+    );
+    _openedRuleControllers.add(
+      TextEditingController(
+        text: item?.openedRule != null ? "${item!.openedRule} days" : "3 days",
+      ),
+    );
+    _descriptionControllers.add(
+      TextEditingController(text: item?.description ?? ''),
+    );
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     _categoryController.dispose();
-    for (var c in _expirationControllers) { c.dispose(); }
-    for (var c in _openedDateControllers) { c.dispose(); }
-    for (var c in _openedRuleControllers) { c.dispose(); }
-    for (var c in _descriptionControllers) { c.dispose(); }
+    for (var c in _expirationControllers) {
+      c.dispose();
+    }
+    for (var c in _openedDateControllers) {
+      c.dispose();
+    }
+    for (var c in _openedRuleControllers) {
+      c.dispose();
+    }
+    for (var c in _descriptionControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final userItemProvider = context.watch<UserItemProvider>();
+    final notificationProvider = context.watch<NotificationProvider>();
     final highContrast = context.watch<AuthProvider>().highContrast;
     final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
     final theme = Theme.of(context);
@@ -80,15 +132,15 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
         ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white) 
         : theme.colorScheme.surface,
       appBar: ResQFoodAppBar(
-        onMenuTap: () {
-          
-        },
+        onMenuTap: () {},
         onNotificationTap: () {
-          
+          notificationProvider.setUnread(false);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationScreen()),
+          );
         },
-        onUserTap: () {
-          
-        },
+        onUserTap: () {},
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -119,7 +171,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start, 
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Center(child: Text(_nameController.text, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold))),
                   const SizedBox(height: 20),
@@ -132,7 +184,13 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                   const SizedBox(height: 10),
 
                   for (int i = 0; i < _quantity; i++) ...[
-                    Text("${_nameController.text} #${i + 1}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(
+                      "${_nameController.text} #${i + 1}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     _buildDateField("Expiration date", _expirationControllers[i], highContrast, isHapticsEnabled),
                     _buildDateField("Opened date (opt)", _openedDateControllers[i], highContrast, isHapticsEnabled),
@@ -144,7 +202,8 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                       child: TextButton(
                         onPressed: () {
                           if (i < widget.groupedUserItem.allInstances.length) {
-                            final instance = widget.groupedUserItem.allInstances[i];
+                            final instance =
+                                widget.groupedUserItem.allInstances[i];
                             _showDeleteConfirmation(
                               context,
                               userItemProvider,
@@ -189,15 +248,17 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                       Expanded(
                         child: ResQFoodPrimaryButton(
                           text: "Save",
-                          onPressed: () { _handleSave(); }
-                        )
+                          onPressed: () {
+                            _handleSave();
+                          },
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 50),
-                ]
-              )
-            )
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -229,9 +290,9 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
         Text("Category", style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
         DropdownButtonFormField<String>(
           key: ValueKey(_categoryController.text),
-          initialValue: _categories.contains(_categoryController.text) 
-            ? _categoryController.text 
-            : null,
+          initialValue: _categories.contains(_categoryController.text)
+              ? _categoryController.text
+              : null,
           items: _categories.map((String category) {
             return DropdownMenuItem<String>(
               value: category,
@@ -272,7 +333,7 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                 GestureDetector(onTap: () { setState(() { _quantity++; _addInstanceControllers(); }); isHapticsEnabled ? HapticFeedback.lightImpact() : null; }, child: const Icon(Icons.keyboard_arrow_up)),
                 GestureDetector(onTap: () { setState(() { if (_quantity > 1) { _quantity--; } }); isHapticsEnabled ? HapticFeedback.lightImpact() : null; }, child: const Icon(Icons.keyboard_arrow_down)),
               ],
-            )
+            ),
           ],
         ),
         Divider(color: Theme.of(context).dividerColor, thickness: highContrast ? 2 : 1),
@@ -304,7 +365,10 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDate(
+    BuildContext context,
+    TextEditingController controller,
+  ) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -343,20 +407,28 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
 
     for (int i = 0; i < _quantity; i++) {
       final bool isExisting = i < widget.groupedUserItem.allInstances.length;
-      final int? existingId = isExisting ? widget.groupedUserItem.allInstances[i].id : null;
+      final int? existingId = isExisting
+          ? widget.groupedUserItem.allInstances[i].id
+          : null;
 
-      itemsToProcess.add(UserItem(
-        id: existingId,
-        itemId: widget.groupedUserItem.allInstances[0].itemId,
-        itemName: _nameController.text,
-        type: _categoryController.text,
-        expirationDate: DateFormat('dd-MM-yyyy').parse(_expirationControllers[i].text),
-        openedDate: _openedDateControllers[i].text == 'Unopened'
-            ? null
-            : DateFormat('dd-MM-yyyy').parse(_openedDateControllers[i].text),
-        openedRule: int.tryParse(_openedRuleControllers[i].text.split(' ')[0]),
-        description: _descriptionControllers[i].text,
-      ));
+      itemsToProcess.add(
+        UserItem(
+          id: existingId,
+          itemId: widget.groupedUserItem.allInstances[0].itemId,
+          itemName: _nameController.text,
+          type: _categoryController.text,
+          expirationDate: DateFormat(
+            'dd-MM-yyyy',
+          ).parse(_expirationControllers[i].text),
+          openedDate: _openedDateControllers[i].text == 'Unopened'
+              ? null
+              : DateFormat('dd-MM-yyyy').parse(_openedDateControllers[i].text),
+          openedRule: int.tryParse(
+            _openedRuleControllers[i].text.split(' ')[0],
+          ),
+          description: _descriptionControllers[i].text,
+        ),
+      );
     }
     try {
       await context.read<UserItemProvider>().saveBatch(itemsToProcess);
@@ -368,9 +440,9 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error saving: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error saving: $e")));
     }
   }
 
@@ -385,7 +457,9 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
           color: highContrast ? (isDark ? Colors.white : Colors.black) : Colors.transparent
         ),
         title: Text("Delete $instanceTitle?"),
-        content: const Text("Are you sure you want to remove this specific instance?"),
+        content: const Text(
+          "Are you sure you want to remove this specific instance?",
+        ),
         actions: [
           TextButton(
             onPressed: () { Navigator.pop(dialogContext); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
@@ -399,19 +473,29 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                 await provider.deleteInstance(id);
                 if (context.mounted) {
                   final updatedGroup = provider.items
-                    .where((e) => e.itemName == widget.groupedUserItem.itemName)
-                    .firstOrNull;
-                  
+                      .where(
+                        (e) => e.itemName == widget.groupedUserItem.itemName,
+                      )
+                      .firstOrNull;
+
                   if (updatedGroup == null || updatedGroup.amount == 0) {
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   } else {
                     setState(() {
                       _quantity = updatedGroup.amount;
 
-                      for (var c in _expirationControllers) { c.dispose(); }
-                      for (var c in _openedDateControllers) { c.dispose(); }
-                      for (var c in _openedRuleControllers) { c.dispose(); }
-                      for (var c in _descriptionControllers) { c.dispose(); }
+                      for (var c in _expirationControllers) {
+                        c.dispose();
+                      }
+                      for (var c in _openedDateControllers) {
+                        c.dispose();
+                      }
+                      for (var c in _openedRuleControllers) {
+                        c.dispose();
+                      }
+                      for (var c in _descriptionControllers) {
+                        c.dispose();
+                      }
 
                       _expirationControllers.clear();
                       _openedDateControllers.clear();
@@ -423,7 +507,10 @@ class _EditItemDetailsScreenState extends State<EditItemDetailsScreen> {
                       }
                     });
                   }
-                  MessageDialog.show(context, message: "Instance successfully removed!");
+                  MessageDialog.show(
+                    context,
+                    message: "Instance successfully removed!",
+                  );
                 }
               } catch (e) {
                 if (context.mounted) {
