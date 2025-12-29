@@ -78,8 +78,8 @@ class AuthProvider extends ChangeNotifier {
       if (fcmToken != null) {
         try {
           await _authService.updateDeviceToken(fcmToken);
-        } catch (_) {
-          debugPrint("Failed to send FCM token to backend.");
+        } catch (e) {
+          debugPrint("Firebase not configured on backend, skipping token sync.");
         }
 
         if (onSuccess != null) {

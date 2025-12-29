@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/screens/menu/help_guide_screen.dart';
 import 'package:frontend/screens/menu/household_hub_screen.dart';
+import 'package:frontend/screens/menu/impact_stats_screen.dart';
 import 'package:provider/provider.dart';
 
 class ResQFoodDrawer extends StatelessWidget {
@@ -37,6 +38,15 @@ class ResQFoodDrawer extends StatelessWidget {
 
           _buildDrawerTile(
             context,
+            icon: Icons.home_rounded,
+            title: "Home",
+            onTap: () => Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false),
+            style: menuTextStyle,
+            isHapticsEnabled: isHapticsEnabled
+          ),
+
+          _buildDrawerTile(
+            context,
             icon: Icons.home_work_rounded,
             title: "Household Hub",
             onTap: () {
@@ -54,6 +64,10 @@ class ResQFoodDrawer extends StatelessWidget {
             icon: Icons.bar_chart_rounded,
             title: "My Impact Stats",
             onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ImpactStatsScreen()),
+              );
             },
             style: menuTextStyle,
             isHapticsEnabled: isHapticsEnabled,

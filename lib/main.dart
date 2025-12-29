@@ -59,6 +59,19 @@ class ResQFoodApp extends StatelessWidget {
     final themeMode = context.watch<ThemeProvider>().themeMode;
 
     return MaterialApp(
+      initialRoute: '/',
+      routes: {
+        '/': (context) {
+          return Consumer<AuthProvider>(
+            builder: (context, auth, _) {
+              if (auth.user == null) {
+                return const LoginScreen();
+              }
+              return const MainScreen();
+            },
+          );
+        },
+      },
       showSemanticsDebugger: false,
       title: 'ResQFood',
       debugShowCheckedModeBanner: false,
@@ -78,23 +91,20 @@ class ResQFoodApp extends StatelessWidget {
               const NotificationBanner(),
               if (isLoading)
                 Container(
-                  color: authProvider.highContrast ? Colors.black.withValues(alpha: 0.7) : Colors.black26,
+                  color: authProvider.highContrast 
+                      ? Colors.black.withValues(alpha: 0.7) 
+                      : Colors.black26,
                   child: Center(
-                    child: CircularProgressIndicator(color: authProvider.highContrast ? Colors.white : Colors.green, strokeWidth: authProvider.highContrast ? 6 : 4),
+                    child: CircularProgressIndicator(
+                      color: authProvider.highContrast ? Colors.white : Colors.green, 
+                      strokeWidth: authProvider.highContrast ? 6 : 4
+                    ),
                   ),
                 )
             ],
           ),
         );
       },
-      home: Consumer<AuthProvider>(
-        builder: (context, auth, _) {
-          if (auth.user == null) {
-            return const LoginScreen();
-          }
-          return const MainScreen();
-        }
-      )
     );
   }
 }

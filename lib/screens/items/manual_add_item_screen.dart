@@ -8,6 +8,7 @@ import 'package:frontend/providers/user_item/user_item_provider.dart';
 import 'package:frontend/screens/notifications/notifications_screen.dart';
 import 'package:frontend/widgets/message_dialog.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
+import 'package:frontend/widgets/resqfood_custom/resqfood_drawer.dart';
 import 'package:frontend/widgets/resqfood_custom/resqfood_primary_button.dart';
 import 'package:frontend/widgets/resqfood_custom/resqfood_text_field.dart';
 import 'package:intl/intl.dart';
@@ -40,6 +41,8 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     'CANNED',
     'PANTRY',
   ];
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late TextEditingController _expiryDateController;
   late TextEditingController _openedRuleController;
@@ -84,11 +87,15 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const ResQFoodDrawer(),
       backgroundColor: highContrast
         ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
         : theme.colorScheme.surface,
       appBar: ResQFoodAppBar(
-        onMenuTap: () {},
+        onMenuTap: () {
+          _scaffoldKey.currentState?.openDrawer();
+        },
         onNotificationTap: () {
           notificationProvider.setUnread(false);
           Navigator.push(

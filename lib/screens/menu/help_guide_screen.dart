@@ -21,7 +21,7 @@ class HelpGuideScreen extends StatelessWidget {
         iconTheme: IconThemeData(
           color: highContrast 
               ? (isDark ? Colors.white : Colors.black) 
-              : Colors.white70,
+              : (isDark ? Colors.white70 : Colors.black54),
         ),
       ),
       body: ListView(
