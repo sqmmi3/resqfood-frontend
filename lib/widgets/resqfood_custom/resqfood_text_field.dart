@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:frontend/providers/auth/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class ResQFoodTextField extends StatelessWidget{
   final String label;
@@ -30,7 +33,11 @@ class ResQFoodTextField extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final highContrast = context.watch<AuthProvider>().highContrast;
+    final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return TextFormField(
       controller: controller,
@@ -38,42 +45,49 @@ class ResQFoodTextField extends StatelessWidget{
       validator: validator,
       onChanged: onChanged,
       readOnly: readOnly,
-      onTap: onTap,
-      cursorColor: colorScheme.primary,
+      onTap: () { onTap!(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
+      cursorColor: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : colorScheme.primary,
+      style: TextStyle(
+        fontWeight: highContrast ? FontWeight.bold : FontWeight.normal,
+        fontSize: 16,
+        color: theme.brightness == Brightness.dark ? Colors.white : Colors.black,
+      ),
       decoration: InputDecoration(
         labelText: label,
         hintText: (defaultValue != null && defaultValue!.isNotEmpty)
           ? defaultValue
           : "Enter $label",
-        floatingLabelBehavior: FloatingLabelBehavior.auto,
-        floatingLabelStyle: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        floatingLabelStyle: TextStyle(color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white :Colors.black) : colorScheme.primary, fontWeight: FontWeight.bold, fontSize: highContrast ? 18 : 16),
         contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
-        labelStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.6)),
+        labelStyle: TextStyle(color: highContrast ? Colors.black : Colors.black54),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: Colors.grey, width: 1),
+          borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+          borderSide: BorderSide(color: highContrast ? (isDark ? Colors.white : Colors.black) : (isDark ? Colors.white70 : Colors.grey), width: highContrast ? 2.0 : 1.0),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: colorScheme.primary, width: 1),
+          borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+          borderSide: BorderSide(color: highContrast ? (isDark ? Colors.white : Colors.black) : colorScheme.primary, width: highContrast ? 3.0 : 2.0),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: colorScheme.error, width: 1),
+          borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+          borderSide: BorderSide(color: highContrast ? (isDark ? Colors.white :Colors.black) : colorScheme.error, width: highContrast ? 2.5 : 1.0),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: Colors.red, width: 2),
+          borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+          borderSide: BorderSide(color: highContrast ? (isDark ? Colors.white : Colors.black) : colorScheme.error, width: highContrast ? 3.0 : 2.0),
         ),
         suffixIcon: showToggle
             ? IconButton(
                 icon: Icon(
                   obscureValue ? Icons.visibility_off : Icons.visibility,
+                  color: highContrast ? Colors.black : null,
+                  size: highContrast ? 28 : 24,
                 ),
                 onPressed: onToggle,
               )
             : (readOnly && onTap != null)
-              ? const Icon(Icons.calendar_today, color: Colors.black54, size: 14)
+              ? Icon(Icons.calendar_today, color: highContrast ? Colors.black : Colors.black54, size: highContrast ? 18 : 16)
               : null,
       ),
     );

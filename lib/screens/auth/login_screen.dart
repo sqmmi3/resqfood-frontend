@@ -1,5 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/screens/auth/register_screen.dart';
 import 'package:frontend/screens/main_screen.dart';
@@ -25,6 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
+    final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -75,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: usernameController
               ),
 
-              SizedBox(height: 10),
+              SizedBox(height: 20),
 
               ResQFoodTextField(
                 label: 'Password',
@@ -128,6 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   InkWell(
                     onTap: () {
+                      isHapticsEnabled ? HapticFeedback.lightImpact() : null;
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const RegisterScreen()),

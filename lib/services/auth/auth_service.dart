@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/models/auth/login_request.dart';
 import 'package:frontend/models/auth/login_response.dart';
 import 'package:frontend/models/auth/register_response.dart';
+import 'package:frontend/models/user_profile.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -38,8 +39,8 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    _storedJwt = null;
     await storage.delete(key: "auth_token");
+    _storedJwt = null;
   }
 
   Future<RegisterResponse> register(String username, String email, String password) async {
@@ -99,6 +100,22 @@ class AuthService {
       throw Exception('Failed to remove device token');
     } else {
       debugPrint('✅ FCM token sucessfully removed from backend.');
+    }
+  }
+
+  Future<UserProfile> fetchProfile(String token) async {
+    final response = await http.get(
+      Uri.parse("$baseUrl/users/profile"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return UserProfile.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load profile data');
     }
   }
 }
