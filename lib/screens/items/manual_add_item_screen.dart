@@ -1,15 +1,32 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/models/user_item.dart';
+import 'package:frontend/providers/notification/notification_provider.dart';
+import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
+import 'package:frontend/screens/notifications/notifications_screen.dart';
 import 'package:frontend/widgets/message_dialog.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
+import 'package:frontend/widgets/resqfood_custom/resqfood_drawer.dart';
 import 'package:frontend/widgets/resqfood_custom/resqfood_primary_button.dart';
 import 'package:frontend/widgets/resqfood_custom/resqfood_text_field.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ManualAddItemScreen extends StatefulWidget {
-  const ManualAddItemScreen({super.key});
+  final String? initialName;
+  final String? initialBarcode;
+  final String? initialCategory;
+  final String? initialOpenedRule;
+
+  const ManualAddItemScreen({
+    super.key,
+    this.initialName,
+    this.initialBarcode,
+    this.initialCategory,
+    this.initialOpenedRule,
+  });
 
   @override
   State<ManualAddItemScreen> createState() => _ManualAddItemScreenState();
@@ -18,13 +35,26 @@ class ManualAddItemScreen extends StatefulWidget {
 class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
   final dateformat = DateFormat('dd-MM-yyyy');
   late TextEditingController _nameController;
+  late TextEditingController _barcodeController;
   String? _selectedCategory;
 
   final List<String> _categories = [
-    'FRUIT', 'VEGETABLE', 'GRAIN', 'PROTEIN', 'DAIRY',
-    'SWEETS', 'BEVERAGE', 'READY_MEAL', 'SPICE',
-    'BAKING', 'FROZEN', 'CANNED', 'PANTRY'
+    'FRUIT',
+    'VEGETABLE',
+    'GRAIN',
+    'PROTEIN',
+    'DAIRY',
+    'SWEETS',
+    'BEVERAGE',
+    'READY_MEAL',
+    'SPICE',
+    'BAKING',
+    'FROZEN',
+    'CANNED',
+    'PANTRY',
   ];
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late TextEditingController _expiryDateController;
   late TextEditingController _openedRuleController;
@@ -32,14 +62,27 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
 
   @override
   void initState() {
-   super.initState();
-   _nameController = TextEditingController();
-   _expiryDateController = TextEditingController();
-   _openedRuleController = TextEditingController();
-   _descriptionController = TextEditingController();
-   _descriptionController.addListener(() {
-    setState(() {});
-   });
+    super.initState();
+    _nameController = TextEditingController(text: widget.initialName);
+    _barcodeController = TextEditingController(text: widget.initialBarcode);
+    if (widget.initialCategory != null && _categories.contains(widget.initialCategory)) {
+      _selectedCategory = widget.initialCategory;
+    }
+    _expiryDateController = TextEditingController();
+    _openedRuleController = TextEditingController(text: widget.initialOpenedRule);
+    _descriptionController = TextEditingController();
+    _descriptionController.addListener(() {
+      setState(() {});
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotificationProvider>().checkUnreadStatus();
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (mounted) {
+        context.read<NotificationProvider>().setUnread(true);
+      }
+    });
   }
 
   @override
@@ -53,19 +96,32 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final notificationProvider = context.watch<NotificationProvider>();
+    final highContrast = context.watch<AuthProvider>().highContrast;
+    final isHapticsEnabled = context.watch<AuthProvider>().hapticsEnabled;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: const ResQFoodDrawer(),
+      backgroundColor: highContrast
+        ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
+        : theme.colorScheme.surface,
       appBar: ResQFoodAppBar(
         onMenuTap: () {
-          
+          _scaffoldKey.currentState?.openDrawer();
         },
         onNotificationTap: () {
-          
+          notificationProvider.setUnread(false);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationScreen()),
+          );
         },
-        onUserTap: () {
-          
-        },
+        onUserTap: () {},
       ),
-      body: SingleChildScrollView( 
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -74,9 +130,20 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 8, top: 8),
                 child: TextButton.icon(
-                  onPressed: () => { Navigator.pop(context) },
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  label: const Text("Go back", style: TextStyle(color: Colors.black)),
+                  onPressed: () { Navigator.pop(context); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: highContrast 
+                      ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black)
+                      : theme.colorScheme.primary
+                  ),
+                  label: Text(
+                    "Go back",
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: highContrast ? FontWeight.bold : FontWeight.normal
+                    )
+                  ),
                 ),
               ),
             ),
@@ -85,31 +152,45 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Center(child: Text("Add Item", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28))),
-                  const SizedBox(height: 20),
-                  const Text("General Information", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20)),
-                  const SizedBox(height: 10),
-                  _buildAddField("Product name", _nameController),
-                  _buildCategoryDropDown(),
+                  Center(child: Text("Add Item", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32, color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary))),
+                  const SizedBox(height: 30),
+                  _buildSectionLabel("General Information", highContrast, theme),
+                  _buildAddField("Product name", _nameController, highContrast),
+                  if (_barcodeController.text.isNotEmpty) 
+                    _buildAddField("Scanned Barcode", _barcodeController, highContrast, isReadOnly: true),
+                  _buildCategoryDropDown(highContrast, isHapticsEnabled, theme),
 
-                  const SizedBox(height: 20),
-                  const Text("Specific Information", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20)),
-                  const SizedBox(height: 10),
-                  _buildDateField("Expiry date", _expiryDateController),
-                  _buildAddField("Opened rule (opt)", _openedRuleController, defaultValue: "3 days"),
-                  _buildDescriptionField(),
+                  const SizedBox(height: 30),
+                  _buildSectionLabel("Specific Information", highContrast, theme),
+                  _buildDateField("Expiry date", _expiryDateController, highContrast),
+                  _buildAddField("Opened rule (opt)", _openedRuleController, highContrast, defaultValue: "3 days"),
+                  _buildDescriptionField(highContrast, isHapticsEnabled, theme),
                   ResQFoodPrimaryButton(text: "Add to Inventory", onPressed: _handleSave),
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 60),
                 ],
               ),
             ),
-          ]
-        )
-      )
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildAddField(String label, TextEditingController controller, {String? defaultValue}) {
+  Widget _buildSectionLabel(String text, bool highContrast, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Text(text, 
+        style: TextStyle(
+          fontWeight: FontWeight.bold, 
+          fontSize: 20,
+          color: theme.colorScheme.onSurface,
+          decoration: highContrast ? TextDecoration.underline : null,
+        )
+      ),
+    );
+  }
+
+  Widget _buildAddField(String label, TextEditingController controller, bool highContrast, {String? defaultValue, bool isReadOnly = false}) {
     if (defaultValue != null && controller.text.isEmpty) {
       controller.text = defaultValue;
     }
@@ -117,49 +198,56 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 16)),
-        const SizedBox(height: 10),
-        ResQFoodTextField(label: label, defaultValue: defaultValue, controller: controller),
+        Text(label, style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
+        const SizedBox(height: 20),
+        ResQFoodTextField(label: label, defaultValue: defaultValue, controller: controller, readOnly: isReadOnly),
         const SizedBox(height: 10),
       ],
     );
   }
 
-  Widget _buildCategoryDropDown() {
+  Widget _buildCategoryDropDown(bool highContrast, bool isHapticsEnabled, ThemeData theme) {
+  final colorScheme = theme.colorScheme;
+  final isDark = theme.brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Category", style: TextStyle(fontSize: 16)),
-        const SizedBox(height: 10),
+        Text("Category", style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
+        const SizedBox(height: 20),
         DropdownButtonFormField<String>(
+          initialValue: _selectedCategory,
           key: ValueKey(_selectedCategory),
           hint: const Text("Select a category"),
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+          dropdownColor: highContrast
+            ? (theme.brightness == Brightness.dark ? Colors.black : Colors.white)
+            : theme.colorScheme.surface,
+          icon: Icon(Icons.arrow_drop_down, color: colorScheme.onSurface),
           items: _categories.map((category) => DropdownMenuItem(value: category, child: Text(category.replaceAll('_', ' ')))).toList(),
+          onTap: () { isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
           onChanged: (value) => setState(() => _selectedCategory = value),
-          decoration:  InputDecoration(
+          decoration: InputDecoration(
             labelText: "Product category",
-            floatingLabelBehavior: FloatingLabelBehavior.auto,
-            floatingLabelStyle: const TextStyle(
-              color: Colors.green,
+            floatingLabelBehavior: highContrast ? FloatingLabelBehavior.always : FloatingLabelBehavior.auto,
+            floatingLabelStyle: TextStyle(
+              color: highContrast ? colorScheme.onSurface : colorScheme.primary,
               fontWeight: FontWeight.bold,
             ),
-            labelStyle: const TextStyle(color: Colors.black54),
+            labelStyle: TextStyle(color: highContrast ? Colors.black : Colors.black54),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: Colors.grey, width: 1),
+              borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+              borderSide: BorderSide(color: highContrast ? colorScheme.onSurface : (isDark ? Colors.white70 :Colors.grey), width: highContrast ? 2.0 : 1.0),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: Colors.green, width: 1),
+              borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+              borderSide: BorderSide(color: highContrast ? colorScheme.onSurface : colorScheme.primary, width: highContrast ? 3.0 : 2.0),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.red, width: 1),
+              borderRadius: BorderRadius.circular(highContrast? 8 : 15),
+              borderSide: BorderSide(color: highContrast? colorScheme.onSurface : colorScheme.error, width: highContrast ? 2.5 : 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.red, width: 2)
+              borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+              borderSide: BorderSide(color: highContrast ? colorScheme.onSurface : colorScheme.error, width: highContrast ? 3.0 : 2.0)
             ),
           ),
         ),
@@ -167,44 +255,32 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     );
   }
 
-  Widget _buildDateField(String label, TextEditingController controller) {
+  Widget _buildDateField(String label, TextEditingController controller, bool highContrast) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 16)),
-        const SizedBox(height: 10),
+        Text(label, style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
+        const SizedBox(height: 20),
         ResQFoodTextField(
           label: "Product expiry date",
           controller: controller,
           readOnly: true,
-          onTap: () => _selectDate(context, controller),
+          onTap: () { _selectDate(context, controller); },
         ),
         const SizedBox(height: 10),
       ],
     );
   }
 
-  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDate(
+    BuildContext context,
+    TextEditingController controller,
+  ) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.black,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: Colors.black),
-            ),
-          ),
-          child: child!
-        );
-      },
     );
 
     if (picked != null) {
@@ -214,10 +290,13 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
     }
   }
 
-  Widget _buildDescriptionField() {
+  Widget _buildDescriptionField(bool highContrast, bool isHapticsEnabled, ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text("Description", style: TextStyle(fontSize: highContrast ? 18 : 16, fontWeight: highContrast ? FontWeight.bold : FontWeight.normal)),
         const SizedBox(height: 10),
         Stack(
           children: [
@@ -225,25 +304,25 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               controller: _descriptionController,
               maxLines: 4,
               maxLength: 128,
+              onTap: () { isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
               decoration: InputDecoration(
                 labelText: "Product description",
-                hintText: "Product description",
-                alignLabelWithHint: true,
-                floatingLabelBehavior: FloatingLabelBehavior.auto,
-                floatingLabelStyle: const TextStyle(
-                  color: Colors.green, 
-                  fontWeight: FontWeight.bold
+                hintText: "Enter Product description",
+                floatingLabelStyle: TextStyle(
+                  color: highContrast ? theme.colorScheme.onSurface : theme.colorScheme.primary,
+                  fontWeight: FontWeight.bold,
                 ),
-                labelStyle: const TextStyle(color: Colors.black54),
+                alignLabelWithHint: true,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                labelStyle: TextStyle(color: highContrast ? Colors.black : Colors.black54),
                 contentPadding: const EdgeInsets.fromLTRB(14, 18, 14, 30),
-                
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: Colors.grey, width: 1),
+                  borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+                  borderSide: BorderSide(color: highContrast ? (isDark ? Colors.white : Colors.black) : (isDark ? Colors.white70 : Colors.grey), width: highContrast ? 2.0 : 1.0),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: Colors.green, width: 1),
+                  borderRadius: BorderRadius.circular(highContrast ? 8 : 15),
+                  borderSide: BorderSide(color: highContrast ? (isDark ? Colors.white : Colors.black) : theme.colorScheme.primary, width: highContrast ? 3.0 : 1.0),
                 ),
                 counterText: "",
               ),
@@ -253,10 +332,10 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
               right: 14,
               child: Text(
                 "${_descriptionController.text.length}/128",
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w400,
+                style: TextStyle(
+                  color: highContrast ? (isDark ? Colors.white : Colors.black) : (isDark ? Colors.white70 :Colors.grey),
+                  fontSize: highContrast ? 14 : 10,
+                  fontWeight: highContrast ? FontWeight.bold : FontWeight.w400,
                 ),
               ),
             ),
@@ -276,7 +355,9 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
       final newItem = UserItem(
         itemName: _nameController.text.trim(),
         type: _selectedCategory!,
-        expirationDate: DateFormat('dd-MM-yyyy').parse(_expiryDateController.text),
+        expirationDate: DateFormat(
+          'dd-MM-yyyy',
+        ).parse(_expiryDateController.text),
         openedRule: rule,
         description: _descriptionController.text.trim(),
       );
@@ -287,7 +368,10 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
 
       if (mounted) {
         MessageDialog.show(context, message: "Item successfully added!");
-        Future.delayed(const Duration(milliseconds: 1000), () => Navigator.pop(context));
+        Future.delayed(
+          const Duration(milliseconds: 1000),
+          () => Navigator.pop(context),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -314,7 +398,9 @@ class _ManualAddItemScreenState extends State<ManualAddItemScreen> {
       throw Exception("Expiry date is required.");
     }
 
-    DateTime expiry = DateFormat('dd-MM-yyyy').parse(_expiryDateController.text);
+    DateTime expiry = DateFormat(
+      'dd-MM-yyyy',
+    ).parse(_expiryDateController.text);
     if (expiry.isBefore(DateTime.now().subtract(const Duration(days: 1)))) {
       throw Exception("The expiry date cannot be in the past.");
     }

@@ -57,4 +57,10 @@ class UserItemProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void reset() {
+  _items = [];
+  loading = false;
+  notifyListeners();
+}
 }
