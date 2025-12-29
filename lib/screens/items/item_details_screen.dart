@@ -112,7 +112,6 @@ class ItemDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
             Padding(
               padding: const EdgeInsets.only(
                 left: 16,
@@ -134,7 +133,8 @@ class ItemDetailsScreen extends StatelessWidget {
               ),
             ),
           ],
-        ),
+        )
+      )
     );
   }
 

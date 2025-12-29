@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/notification_model.dart';
-import 'package:frontend/models/user_item.dart';
+import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
 import 'package:frontend/screens/items/item_details_screen.dart';
 import 'package:frontend/services/auth/auth_service.dart';
@@ -45,7 +45,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   void _markAllReadOnExit() async {
-    // Only send req if there is at least 1 notif
     if (_notifications.any((n) => !n.isRead)) {
       try {
         final token = await AuthService.getStoredToken();
@@ -106,14 +105,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
     if (notification.relatedItemId != null && mounted) {
       final int targetId = notification.relatedItemId!;
 
-      // Look up item with provider
       final provider = Provider.of<UserItemProvider>(context, listen: false);
 
       String? foundItemName;
 
-      // Find which group contains the itemId
       try {
-        // Loop through all grouped items
         for (var group in provider.items) {
           bool instanceExists = group.allInstances.any(
             (instance) => instance.id == targetId,
@@ -226,25 +222,56 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Widget _buildNotificationTile(NotificationModel notification) {
     final bool isRead = notification.isRead;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final authProvider = context.watch<AuthProvider>();
+    final highContrast = authProvider.highContrast;
+
     final Color bgColor = isRead
-        ? Colors.grey.withAlpha(1)
-        : Colors.green.withAlpha(5);
+        ? (isDark ? theme.colorScheme.surface : Colors.grey[100]!)
+        : (isDark ? theme.colorScheme.primaryContainer.withValues(alpha: 0.15) : Colors.green[50]!);
+
     final FontWeight fontWeight = isRead ? FontWeight.normal : FontWeight.bold;
 
     return Container(
-      color: bgColor,
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: highContrast
+              ? (isDark ? Colors.white : Colors.black)
+              : (isDark ? Colors.white10 : Colors.grey[300]!),
+          width: highContrast ? 2.0 : 1.0,
+        ),
+        boxShadow: highContrast ? null : [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         onTap: () => _handleNotificationTap(notification),
         leading: CircleAvatar(
-          backgroundColor: isRead ? Colors.grey[200] : Colors.green[100],
+          backgroundColor: isRead 
+              ? (isDark ? Colors.white10 : Colors.grey[200]) 
+              : theme.colorScheme.primaryContainer,
           child: Icon(
             Icons.notifications,
-            color: isRead ? Colors.grey : Colors.green,
+            color: isRead 
+                ? (isDark ? Colors.white38 : Colors.grey) 
+                : theme.colorScheme.primary,
           ),
         ),
         title: Text(
           notification.title,
-          style: TextStyle(fontWeight: fontWeight),
+          style: TextStyle(
+            fontWeight: fontWeight,
+            color: theme.colorScheme.onSurface,
+          ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -254,12 +281,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
               notification.message,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.black87),
+              style: TextStyle(
+                color: highContrast 
+                  ? (isDark ? Colors.white : Colors.black) 
+                  : (isDark ? Colors.white70 : Colors.black87),
+              ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               _formatDate(notification.timestamp),
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 11, 
+                color: isDark ? Colors.white38 : Colors.grey[600],
+              ),
             ),
           ],
         ),

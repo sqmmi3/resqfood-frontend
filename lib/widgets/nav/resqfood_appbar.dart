@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
+import 'package:frontend/providers/user_item/user_item_provider.dart';
+import 'package:frontend/screens/profile/profile_screen.dart';
 import 'package:provider/provider.dart';
 
 class ResQFoodAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -70,12 +72,92 @@ class ResQFoodAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
           ],
         ),
-        IconButton(
-          icon: Icon(Icons.account_circle, color: highContrast ? (isDarkMode ? Colors.white : Colors.black) : theme.iconTheme.color),
-          onPressed: () { onUserTap!(); isHapticsEnabled ? HapticFeedback.lightImpact() : null; },
+
+        PopupMenuButton<String>(
+          icon: Icon(
+            Icons.account_circle,
+            color: highContrast
+                ? (isDarkMode ? Colors.white : Colors.black)
+                : theme.iconTheme.color,
+          ),
+          offset: const Offset(0, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: highContrast 
+              ? BorderSide(color: isDarkMode ? Colors.white : Colors.black, width: 2) 
+              : BorderSide.none,
+          ),
+          color: highContrast 
+            ? (isDarkMode ? Colors.black : Colors.white) 
+            : theme.colorScheme.surface,
+          onSelected: (value) async {
+            if (isHapticsEnabled) HapticFeedback.mediumImpact();
+            
+            switch (value) {
+              case 'profile':
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
+                break;
+              case 'logout':
+                context.read<UserItemProvider>().reset();
+                await authProvider.logout();
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                }
+                break;
+            }
+          },
+          itemBuilder: (BuildContext context) => [
+            _buildPopupItem(
+              value: 'profile',
+              icon: Icons.person_outline,
+              text: "My Profile",
+              highContrast: highContrast,
+              isDarkMode: isDarkMode,
+            ),
+            const PopupMenuDivider(),
+            _buildPopupItem(
+              value: 'logout',
+              icon: Icons.logout,
+              text: "Logout",
+              color: Colors.red,
+              highContrast: highContrast,
+              isDarkMode: isDarkMode,
+            ),
+          ],
         ),
         const SizedBox(width: 8),
       ],
+    );
+  }
+
+  PopupMenuItem<String> _buildPopupItem({
+  required String value,
+  required IconData icon,
+  required String text,
+  required bool highContrast,
+  required bool isDarkMode,
+  Color? color,
+  }) {
+    final contentColor = color ?? (highContrast ? (isDarkMode ? Colors.white : Colors.black) : null);
+    
+    return PopupMenuItem<String>(
+      value: value,
+      child: Row(
+        children: [
+          Icon(icon, color: contentColor, size: 20),
+          const SizedBox(width: 12),
+          Text(
+            text,
+            style: TextStyle(
+              color: contentColor,
+              fontWeight: highContrast ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

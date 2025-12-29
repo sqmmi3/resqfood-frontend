@@ -8,6 +8,7 @@ import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/screens/settings/settings_screen.dart';
 import 'package:frontend/widgets/nav/resqfood_appbar.dart';
 import 'package:frontend/widgets/nav/resqfood_bottomnavbar.dart';
+import 'package:frontend/widgets/resqfood_custom/resqfood_drawer.dart';
 import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final List<Widget> _screens = [
     HomeScreen(),
@@ -48,6 +50,8 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       backgroundColor: highContrast ? Colors.white : Colors.grey[50],
+      key: _scaffoldKey,
+      drawer: const ResQFoodDrawer(),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Container(
@@ -61,7 +65,9 @@ class _MainScreenState extends State<MainScreen> {
           ),
           child: ResQFoodAppBar(
             hasUnreadNotifications: notificationProvider.hasUnread,
-            onMenuTap: () {},
+            onMenuTap: () {
+              _scaffoldKey.currentState?.openDrawer();
+            },
             onNotificationTap: () {
               notificationProvider.setUnread(false);
               Navigator.push(

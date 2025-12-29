@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/providers/notification/notification_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';

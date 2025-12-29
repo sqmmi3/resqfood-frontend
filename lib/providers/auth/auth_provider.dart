@@ -37,6 +37,8 @@ class AuthProvider extends ChangeNotifier {
   double _fontSizeFactor = 1.0;
   double get fontSizeFactor => _fontSizeFactor;
 
+  String? get token => _user?.token;
+
   void setHandedness({required bool isLeft}) {
     _isLeftHanded = isLeft;
     notifyListeners();

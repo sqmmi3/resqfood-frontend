@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/models/household_details.dart';
 import 'package:frontend/services/auth/auth_service.dart';
 import 'package:http/http.dart' as http;
 
@@ -75,6 +76,24 @@ class HouseholdService {
       } catch (e) {
         throw Exception("Server Error (${response.statusCode}): could not process request.");
       }
+    }
+  }
+
+  Future<HouseholdDetails> fetchMyHousehold(String token) async {
+    final response = await http.get(
+      Uri.parse("$baseUrl/households/my-household"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return HouseholdDetails.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 404) {
+      throw Exception('No household joined yet.');
+    } else {
+      throw Exception('Failed to load household details.');
     }
   }
 }
