@@ -45,6 +45,13 @@ android {
     dependencies {
         coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     }
+
+    configurations.all {
+        resolutionStrategy {
+            force("com.google.firebase:firebase-iid:21.1.0")
+            exclude(group = "com.google.firebase", module="firebase-iid")
+        }
+    }
 }
 
 flutter {
