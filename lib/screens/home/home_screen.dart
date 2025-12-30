@@ -132,42 +132,54 @@ class _HomeScreenState extends State<HomeScreen> {
           _menuItem("Barcode", () async {
             toggleMenu();
             isHapticsEnabled ? HapticFeedback.lightImpact() : null;
-            final String? scannedBarcode = await Navigator.push(
+
+            final dynamic scanResult = await Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const BarcodeScannerScreen()),
             );
 
             if (!context.mounted) return;
 
-            if (scannedBarcode != null && scannedBarcode.isNotEmpty) {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => const Center(child: CircularProgressIndicator()),
-              );
+            if (scanResult != null && scanResult is Map) {
+              final String scannedBarcode = scanResult['barcode'] ?? "";
+              final String aiCategory = scanResult['aiCategory'] ?? "PANTRY";
 
-              final productData = await ProductService().fetchProductData(scannedBarcode);
-              final String initialName = productData?['name'] ?? "";
-              final String? initialCategory = productData?['category'];
-              final String? initialOpenedRule = productData?['openedRule'];
-
-              debugPrint(initialName);
-              debugPrint(initialCategory);
-
-              if (context.mounted) {
-                Navigator.pop(context);
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ManualAddItemScreen(
-                      initialName: initialName,
-                      initialBarcode: scannedBarcode,
-                      initialCategory: initialCategory,
-                      initialOpenedRule: initialOpenedRule,
-                    ),
-                  ),
+              if (scannedBarcode.isNotEmpty) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => const Center(child: CircularProgressIndicator()),
                 );
+
+                final productData = await ProductService().fetchProductData(scannedBarcode);
+
+                if (context.mounted) {
+                  Navigator.pop(context);
+
+                  String finalCategory = aiCategory;
+                  final String? offCategory = productData?['category'];
+                  if (offCategory != null && offCategory.isNotEmpty) {
+                    finalCategory = offCategory;
+                  } else {
+                    finalCategory = aiCategory;
+                    String? productName = productData?['name'];
+                    if (productName != null && productName.toLowerCase().contains("milka")) {
+                      finalCategory = "SWEETS";
+                    }
+                  }
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ManualAddItemScreen(
+                        initialName: productData?['name'] ?? "",
+                        initialBarcode: scannedBarcode,
+                        initialCategory: finalCategory,
+                        initialOpenedRule: productData?['openedRule'],
+                      ),
+                    ),
+                  );
+                }
               }
             }
           }, highContrast),

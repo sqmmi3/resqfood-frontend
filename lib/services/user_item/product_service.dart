@@ -18,10 +18,15 @@ class ProductService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 1 && data['product'] != null) {
-          String rawCategories = data['product']['categories'] ?? "";
+          String? rawCategories = data['product']['categories'];
 
-          final String category = _mapToAppCategory(rawCategories);
-          final int ruleDays = _getOpenedRuleForCategory(category);
+          String category = "";
+          int ruleDays = 3;
+
+          if (rawCategories != null && rawCategories.isNotEmpty) {
+            category = _mapToAppCategory(rawCategories);
+            ruleDays = _getOpenedRuleForCategory(category);
+          }
 
           debugPrint(response.body.toString());
 
@@ -40,23 +45,59 @@ class ProductService {
   }
 
   String _mapToAppCategory(String raw) {
-    debugPrint(raw);
-    final text = raw.toUpperCase();
-    if ((text.contains("GRAPES") || text.contains("APPLE") || text.contains("BANANA") || text.contains("KIWI") || text.contains("ORANGE")) && !(text.contains("CARBONATED") || text.contains("SODA") || text.contains("DRINK") || text.contains("WATER") || text.contains("JUICE"))) return "FRUIT";
-    if ((text.contains("BEVERAGE") || text.contains("SODA") || text.contains("DRINK") || text.contains("WATER") || text.contains("EAU") || text.contains("JUICE")) && !text.contains("CHOCOLATE")) return "BEVERAGE";
-    if (text.contains("FRUIT")) return "FRUIT";
-    if (text.contains("VEGETABLE") || text.contains("PLANT-BASED")) return "VEGETABLE";
-    if (text.contains("DAIRY") || text.contains("MILK") || text.contains("CHEESE") || text.contains("YOGURT")) return "DAIRY";
-    if (text.contains("MEAT") || text.contains("CHICKEN") || text.contains("FISH") || text.contains("PROTEIN")) return "PROTEIN";
-    if ((text.contains("SWEET") || text.contains("CHOCOLATE") || text.contains("DESSERT") || text.contains("BISCUIT") || text.contains("SNACK")) && !text.contains("HAZELNUTS")) return "SWEETS";
-    if (text.contains("GRAIN") || text.contains("CEREAL") || text.contains("PASTA") || text.contains("RICE") || text.contains("BREAD")) return "GRAIN";
-    if (text.contains("FROZEN")) return "FROZEN";
-    if (text.contains("CANNED")) return "CANNED";
-    if (text.contains("SPICE") || text.contains("HERB") || text.contains("CONDIMENT")) return "SPICE";
-    if (text.contains("BAKING") || text.contains("FLOUR")) return "BAKING";
-    if (text.contains("READY-TO-EAT") || text.contains("MEAL")) return "READY_MEAL";
-    return "PANTRY";
+  final text = raw.toUpperCase();
+
+  bool isPantry = text.contains("SPREAD") || 
+      text.contains("PÂTE À TARTINER") || 
+      text.contains("HONEY") || 
+      text.contains("MIEL") || 
+      text.contains("JAM") || 
+      text.contains("CONFITURE");
+
+  bool isLiquid = text.contains("BEVERAGE") || 
+                  text.contains("SODA") || 
+                  text.contains("DRINK") || 
+                  text.contains("WATER") || 
+                  text.contains("EAU") ||
+                  text.contains("BOISSON");
+  
+  bool isBeverage = text.contains("BEVERAGE") || 
+                  text.contains("JUICE") ||
+                  text.contains("SODA") || 
+                  text.contains("DRINK") || 
+                  text.contains("WATER") || 
+                  text.contains("EAU") ||
+                  text.contains("BOISSON");
+                
+  bool isVegetable = text.contains("PICKLE") ||
+                  text.contains("CUCUMBER") ||
+                  text.contains("SALAD") ||
+                  text.contains("TOMATO") ||
+                  text.contains("CARROT") ||
+                  text.contains("WORTEL");
+
+  if (text.contains("FRUIT") && !isLiquid) return "FRUIT";
+
+  if (isBeverage && !isPantry && !isVegetable) return "BEVERAGE";
+  if (isPantry) return "PANTRY";
+
+  if (text.contains("MEAT") || text.contains("PROTEIN")) return "PROTEIN";
+  if (text.contains("CHEESE") || text.contains("LAIT")) return "DAIRY";
+
+  if (text.contains("VEGETABLE") || text.contains("PLANT-BASED") && !isLiquid && !isPantry) return "VEGETABLE";
+  
+  if (text.contains("CHOCOLATE") || text.contains("SWEET") || text.contains("SUCRE")) {
+    return "SWEETS"; 
   }
+  if (text.contains("GRAIN") || text.contains("CEREAL") || text.contains("PASTA") || text.contains("RICE") || text.contains("BREAD")) return "GRAIN";
+  if (text.contains("FROZEN")) return "FROZEN";
+  if (text.contains("CANNED")) return "CANNED";
+  if (text.contains("SPICE") || text.contains("HERB") || text.contains("CONDIMENT")) return "SPICE";
+  if (text.contains("BAKING") || text.contains("FLOUR")) return "BAKING";
+  if (text.contains("READY-TO-EAT") || text.contains("MEAL")) return "READY_MEAL";
+
+  return "PANTRY";
+}
 
   int _getOpenedRuleForCategory(String category) {
     switch (category) {
