@@ -12,6 +12,13 @@ import 'package:frontend/models/notification_model.dart';
 import 'package:http/http.dart' as http;
 
 class NotificationService {
+  final http.Client _client;
+  final String baseUrl;
+
+  NotificationService({http.Client? client, String? baseUrl})
+      : _client = client ?? http.Client(),
+        baseUrl = baseUrl ?? dotenv.env['API_BASE_URL'] ?? '';
+
   static final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
@@ -19,8 +26,6 @@ class NotificationService {
       StreamController<int?>.broadcast();
   static Stream<int?> get navigationStream =>
       _navigationStreamController.stream;
-
-  static String get baseUrl => dotenv.env['API_BASE_URL'] ?? '';
 
   static Stream<RemoteMessage> get foregroundStream =>
       FirebaseMessaging.onMessage;
@@ -132,11 +137,11 @@ class NotificationService {
   }
 
   // Fetch list of saved notifications from backend
-  static Future<List<NotificationModel>> fetchNotifications(
+  Future<List<NotificationModel>> fetchNotifications(
     String jwtToken,
   ) async {
     try {
-      final response = await http.get(
+      final response = await _client.get(
         Uri.parse("$baseUrl/notifications"),
         headers: {
           'Content-Type': "application/json",
@@ -157,9 +162,9 @@ class NotificationService {
   }
 
   // Mark notification as read
-  static Future<void> markAsRead(int notificationId, String jwtToken) async {
+  Future<void> markAsRead(int notificationId, String jwtToken) async {
     try {
-      final response = await http.put(
+      final response = await _client.put(
         Uri.parse('$baseUrl/notifications/$notificationId/read'),
         headers: {
           'Content-Type': 'application/json',
@@ -175,12 +180,12 @@ class NotificationService {
     }
   }
 
-  static Future<void> deleteNotification(
+  Future<void> deleteNotification(
     int notificationId,
     String jwtToken,
   ) async {
     try {
-      final response = await http.delete(
+      final response = await _client.delete(
         Uri.parse('$baseUrl/notifications/$notificationId'),
         headers: {
           'Content-Type': 'application/json',
@@ -199,9 +204,9 @@ class NotificationService {
     }
   }
 
-  static Future<void> markAllAsRead(String jwtToken) async {
+  Future<void> markAllAsRead(String jwtToken) async {
     try {
-      final response = await http.put(
+      final response = await _client.put(
         Uri.parse('$baseUrl/notifications/read-all'),
         headers: {
           'Content-Type': 'application/json',
@@ -217,9 +222,9 @@ class NotificationService {
     }
   }
 
-  static Future<int> getUnreadCount(String jwtToken) async {
+  Future<int> getUnreadCount(String jwtToken) async {
     try {
-      final response = await http.get(
+      final response = await _client.get(
         Uri.parse('$baseUrl/notifications/unread-count'),
         headers: {'Authorization': 'Bearer $jwtToken'},
       );

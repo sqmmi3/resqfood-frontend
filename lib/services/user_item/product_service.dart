@@ -4,13 +4,17 @@ import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 
 class ProductService {
+  final http.Client _client;
+
+  ProductService({http.Client? client}) : _client = client ?? http.Client();
+
   Future<Map<String, String>?> fetchProductData(String barcode) async {
     final url = Uri.parse(
       "https://world.openfoodfacts.org/api/v2/product/$barcode.json?fields=product_name,image_front_url,categories"
     );
 
     try {
-      final response = await http.get(url);
+      final response = await _client.get(url);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 1 && data['product'] != null) {
@@ -39,7 +43,7 @@ class ProductService {
     debugPrint(raw);
     final text = raw.toUpperCase();
     if ((text.contains("GRAPES") || text.contains("APPLE") || text.contains("BANANA") || text.contains("KIWI") || text.contains("ORANGE")) && !(text.contains("CARBONATED") || text.contains("SODA") || text.contains("DRINK") || text.contains("WATER") || text.contains("JUICE"))) return "FRUIT";
-    if ((text.contains("BEVERAGE") || text.contains("SODA") || text.contains("DRINK") || text.contains("WATER") || text.contains("JUICE")) && !text.contains("CHOCOLATE")) return "BEVERAGE";
+    if ((text.contains("BEVERAGE") || text.contains("SODA") || text.contains("DRINK") || text.contains("WATER") || text.contains("EAU") || text.contains("JUICE")) && !text.contains("CHOCOLATE")) return "BEVERAGE";
     if (text.contains("FRUIT")) return "FRUIT";
     if (text.contains("VEGETABLE") || text.contains("PLANT-BASED")) return "VEGETABLE";
     if (text.contains("DAIRY") || text.contains("MILK") || text.contains("CHEESE") || text.contains("YOGURT")) return "DAIRY";

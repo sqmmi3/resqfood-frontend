@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/services/notification/notification_service.dart';
 
 class NotificationBanner extends StatefulWidget {
-  const NotificationBanner({super.key});
+  final Stream<RemoteMessage>? streamOverride;
+  const NotificationBanner({super.key, this.streamOverride});
 
   @override
   State<NotificationBanner> createState() => _NotificationBannerState();
@@ -20,7 +21,8 @@ class _NotificationBannerState extends State<NotificationBanner> {
   void initState() {
     super.initState();
 
-    NotificationService.foregroundStream.listen((RemoteMessage message) {
+    final stream = widget.streamOverride ?? NotificationService.foregroundStream;
+    stream.listen((RemoteMessage message) {
       setState(() {
         _title = message.notification?.title;
         _body = message.notification?.body;
