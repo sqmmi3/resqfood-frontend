@@ -53,18 +53,20 @@ Future<void> pumpRealApp(WidgetTester tester) async {
     ),
   );
   await tester.pumpAndSettle();
-  
-  await tester.pump(const Duration(milliseconds: 500));
+  await lookAtPhone(tester, seconds: 1);
 }
 
 Future<void> loginAs(WidgetTester tester, {required String username, required String password}) async {
   await tester.enterText(find.widgetWithText(ResQFoodTextField, 'Username'), username);
+  await lookAtPhone(tester, seconds: 1);
   await tester.enterText(find.widgetWithText(ResQFoodTextField, 'Password'), password);
-  await tester.pump();
+  await lookAtPhone(tester, seconds: 1);
   FocusManager.instance.primaryFocus?.unfocus();
   await tester.pumpAndSettle();
   await tester.tap(find.widgetWithText(ResQFoodPrimaryButton, 'LOGIN'));
+  await lookAtPhone(tester, seconds: 1);
   await waitForWidget(tester, find.byType(MainScreen), const Duration(seconds: 20));
+  await lookAtPhone(tester, seconds: 1);
 }
 
 
@@ -85,6 +87,7 @@ Future<void> openSettingsTab(WidgetTester tester) async {
 
   await tester.pumpAndSettle();
   await tester.tap(find.byIcon(Icons.settings), warnIfMissed: false);
+  await lookAtPhone(tester, seconds: 1);
   await tester.pumpAndSettle();
   
   await waitForWidget(tester, find.byType(SettingsScreen), const Duration(seconds: 5));
@@ -95,14 +98,15 @@ Future<void> openProfileFromMenu(WidgetTester tester) async {
   final profileButton = find.byIcon(Icons.account_circle);
   await waitForWidget(tester, profileButton, const Duration(seconds: 5));
   // Give extra time for any overlays to dismiss
-  await tester.pump(const Duration(milliseconds: 500));
   FocusManager.instance.primaryFocus?.unfocus();
   await tester.pumpAndSettle();
   await tester.tap(profileButton, warnIfMissed: false);
+  await lookAtPhone(tester, seconds: 1);
   await tester.pumpAndSettle();
 
   await waitForWidget(tester, find.text('My Profile'), const Duration(seconds: 5));
   await tester.tap(find.text('My Profile'));
+  await lookAtPhone(tester, seconds: 1);
   await tester.pumpAndSettle();
 
   await waitForWidget(tester, find.byType(ProfileScreen), const Duration(seconds: 5));
@@ -112,9 +116,11 @@ Future<void> openProfileFromMenu(WidgetTester tester) async {
 Future<void> toggleSetting(WidgetTester tester, String label) async {
   final switchFinder = find.widgetWithText(SwitchListTile, label);
   await tester.scrollUntilVisible(switchFinder, 500.0, scrollable: find.byType(Scrollable).last);
+  await lookAtPhone(tester, seconds: 1);
   await tester.pumpAndSettle();
   final before = tester.widget<SwitchListTile>(switchFinder).value;
   await tester.tap(switchFinder);
+  await lookAtPhone(tester, seconds: 1);
   await tester.pumpAndSettle();
   final after = tester.widget<SwitchListTile>(switchFinder).value;
   expect(after, equals(!before));
@@ -124,6 +130,7 @@ Future<void> adjustFontSize(WidgetTester tester) async {
   final fontSizeTile = find.text('Font Size');
   await tester.scrollUntilVisible(fontSizeTile, 500.0, scrollable: find.byType(Scrollable).last);
   await tester.tap(fontSizeTile);
+  await lookAtPhone(tester, seconds: 1);
   await tester.pumpAndSettle();
 
   final sliderFinder = find.byType(Slider);
@@ -132,6 +139,7 @@ Future<void> adjustFontSize(WidgetTester tester) async {
   final initial = tester.widget<Slider>(sliderFinder).value;
   final sliderCenter = tester.getCenter(sliderFinder);
   await tester.tapAt(sliderCenter + const Offset(40, 0));
+  await lookAtPhone(tester, seconds: 1);
   await tester.pumpAndSettle();
 
   final updated = tester.widget<Slider>(sliderFinder).value;
@@ -141,6 +149,7 @@ Future<void> adjustFontSize(WidgetTester tester) async {
   final barrier = find.byType(ModalBarrier);
   if (barrier.evaluate().isNotEmpty) {
     await tester.tap(barrier.last);
+    await lookAtPhone(tester, seconds: 1);
     await tester.pumpAndSettle();
   }
 }
@@ -150,5 +159,10 @@ Future<void> logoutFromProfile(WidgetTester tester) async {
   final logoutButton = find.byKey(const Key('profile_logout'));
   await tester.scrollUntilVisible(logoutButton, 500.0, scrollable: find.byType(Scrollable).last);
   await tester.tap(logoutButton);
+  await lookAtPhone(tester, seconds: 1);
   await tester.pumpAndSettle();
+}
+
+Future<void> lookAtPhone(WidgetTester tester, {int seconds = 1}) async {
+  await tester.pump(Duration(seconds: seconds));
 }

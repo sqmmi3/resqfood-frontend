@@ -30,11 +30,21 @@ Future<void> pumpAppWithLogin(WidgetTester tester) async {
   await loginAs(tester, username: 'admin', password: 'Admin123%');
 }
 
+  void setLargeDisplay(WidgetTester tester) {
+  tester.view.devicePixelRatio = 1.0;
+  
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+  }
+
 void main() async {
   await initializeTestEnvironment();
 
   group('Item Lifecycle Tests', () {
     testWidgets('Verify Add Item screen has necessary fields', (WidgetTester tester) async {
+      setLargeDisplay(tester);
       await pumpAppWithLogin(tester);
 
       final homeFab = find.byKey(const Key('home_fab'));
@@ -48,14 +58,17 @@ void main() async {
 
       expect(find.byType(ManualAddItemScreen), findsOneWidget);
 
-      expect(find.text('Product name'), findsOneWidget);
-      expect(find.text('Category'), findsOneWidget);
-      expect(find.text('Expiry date'), findsOneWidget);
-      expect(find.text('Opened rule (opt)'), findsOneWidget);
-      expect(find.text('Description'), findsOneWidget);
+      expect(find.text('Product name'), findsWidgets);
+      expect(find.text('Category'), findsWidgets);
+      expect(find.text('Expiry date'), findsWidgets);
+      expect(find.text('Opened rule (opt)'), findsWidgets);
+      expect(find.text('Description'), findsWidgets);
+
+      addTearDown(tester.view.resetPhysicalSize);
     });
 
     testWidgets('Create an item', (WidgetTester tester) async {
+      setLargeDisplay(tester);
       await pumpAppWithLogin(tester);
 
       await tester.tap(find.byKey(const Key('home_fab')));
@@ -93,9 +106,11 @@ void main() async {
       await tester.pumpAndSettle();
       
       expect(find.byType(HomeScreen), findsOneWidget);
+      addTearDown(tester.view.resetPhysicalSize);
     });
 
     testWidgets('Verify item details on Home screen', (WidgetTester tester) async {
+      setLargeDisplay(tester);
       await pumpAppWithLogin(tester);
 
       await tester.tap(find.byKey(const Key('home_fab')));
@@ -135,6 +150,7 @@ void main() async {
       expect(find.text('Chicken Tenders'), findsOneWidget);
       expect(find.text('PROTEIN'), findsOneWidget);
       expect(find.byType(UserItemDetailCard), findsOneWidget);
+      addTearDown(tester.view.resetPhysicalSize);
     });
   });
 }

@@ -10,12 +10,18 @@ class ProductService {
 
   ProductService(this._aiModel, {http.Client? client}) : _client = client ?? http.Client();
 
-Future<Map<String, String>?> fetchProductData(String barcode) async {
+  Future<Map<String, String>?> fetchProductData(String barcode) async {
     var result = await _fetchFromOpenFoodFacts(barcode);
+    if (result == null || result['name']!.isEmpty) {
+      result = await _fetchFromUPCItemDB(barcode);
+    }
 
     if (result == null || result['name']!.isEmpty) {
-      debugPrint("OFF failed or empty for $barcode, trying UPCitemdb...");
-      result = await _fetchFromUPCItemDB(barcode);
+      debugPrint("Databases failed. Asking Gemini to reason from barcode digits: $barcode");
+      final aiGuess = await _getAiProductGuess(barcode);
+      if (aiGuess != null) {
+        result = {'name': aiGuess, 'image': ""};
+      }
     }
 
     if (result != null && result['name']!.isNotEmpty) {
@@ -26,6 +32,37 @@ Future<Map<String, String>?> fetchProductData(String barcode) async {
     }
 
     return {'name': "", 'category': "PANTRY", 'openedRule': "3 days"};
+  }
+
+  Future<String?> _getAiProductGuess(String barcode) async {
+    try {
+      final prompt = '''
+        You are a global barcode expert. A user in Belgium scanned this barcode: $barcode.
+        
+        Using your knowledge of GS1 standards and common retail patterns:
+        1. Identify the manufacturer if possible.
+        2. Identify the most likely product associated with this exact sequence.
+        
+        RESPONSE FORMAT: 
+        If you are 70% sure, return only the "Brand Name + Product Name".
+        If you have no idea, return "UNKNOWN".
+      ''';
+
+      debugPrint("--- CHAT SENT TO GEMINI ---");
+      debugPrint(prompt);
+      debugPrint("---------------------------");
+
+      final response = await _aiModel.generateContent([Content.text(prompt)]);
+      final text = response.text?.trim() ?? "UNKNOWN";
+
+      debugPrint("--- GEMINI REPLIED ---");
+      debugPrint(response.text.toString());
+      
+      return (text == "UNKNOWN" || text.isEmpty) ? null : text;
+    } catch (e) {
+      debugPrint("AI Reasoning Error: $e");
+      return null;
+    }
   }
 
   Future<Map<String, String>?> _fetchFromOpenFoodFacts(String barcode) async {

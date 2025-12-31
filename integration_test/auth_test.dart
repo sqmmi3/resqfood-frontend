@@ -13,21 +13,37 @@ import 'helpers.dart';
 Future<void> main() async {
   await initializeTestEnvironment();
 
+  void setLargeDisplay(WidgetTester tester) {
+  tester.view.devicePixelRatio = 1.0;
+  
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+  }
+
   group('Auth Flow', () {
     testWidgets('Shows login screen on launch', (WidgetTester tester) async {
+      setLargeDisplay(tester);
       await pumpRealApp(tester);
       expect(find.byType(LoginScreen), findsOneWidget);
+
+      addTearDown(tester.view.resetPhysicalSize);
     });
 
     testWidgets('Login with correct credentials', (WidgetTester tester) async {
+      setLargeDisplay(tester);
       await pumpRealApp(tester);
       await loginAs(tester, username: 'admin', password: 'Admin123%');
       expect(find.byType(MainScreen), findsOneWidget);
+
+      addTearDown(tester.view.resetPhysicalSize);
     });
   });
 
   group('Register Validation', () {
     testWidgets('Register with correct values', (WidgetTester tester) async {
+      setLargeDisplay(tester);
       await pumpRealApp(tester);
 
       await tester.tap(find.text('Sign up'));
@@ -45,9 +61,12 @@ Future<void> main() async {
       await tester.pumpAndSettle();
 
       expect(find.byType(LoginScreen), findsOneWidget);
+
+      addTearDown(tester.view.resetPhysicalSize);
     });
 
     testWidgets('Invalid email shows validation error', (WidgetTester tester) async {
+      setLargeDisplay(tester);
       await pumpRealApp(tester);
       await tester.tap(find.text('Sign up'));
       await tester.pumpAndSettle();
@@ -62,9 +81,12 @@ Future<void> main() async {
       await tester.pumpAndSettle();
 
       expect(find.text('Invalid email format.'), findsOneWidget);
+
+      addTearDown(tester.view.resetPhysicalSize);
     });
 
     testWidgets('Password mismatch shows validation error', (WidgetTester tester) async {
+      setLargeDisplay(tester);
       await pumpRealApp(tester);
       await tester.tap(find.text('Sign up'));
       await tester.pumpAndSettle();
@@ -79,11 +101,14 @@ Future<void> main() async {
       await tester.pumpAndSettle();
 
       expect(find.text('Passwords do not match.'), findsOneWidget);
+
+      addTearDown(tester.view.resetPhysicalSize);
     });
   });
 
   group('Logout', () {
     testWidgets('User can logout from settings', (WidgetTester tester) async {
+      setLargeDisplay(tester);
       await pumpRealApp(tester);
       await loginAs(tester, username: 'admin', password: 'Admin123%');
 
@@ -100,9 +125,12 @@ Future<void> main() async {
 
       await waitForWidget(tester, find.byType(LoginScreen), const Duration(seconds: 10));
       expect(find.byType(LoginScreen), findsOneWidget);
+
+      addTearDown(tester.view.resetPhysicalSize);
     });
 
     testWidgets('User can logout from profile', (WidgetTester tester) async {
+      setLargeDisplay(tester);
       await pumpRealApp(tester);
       await loginAs(tester, username: 'admin', password: 'Admin123%');
 
@@ -119,6 +147,8 @@ Future<void> main() async {
 
       await waitForWidget(tester, find.byType(LoginScreen), const Duration(seconds: 10));
       expect(find.byType(LoginScreen), findsOneWidget);
+
+      addTearDown(tester.view.resetPhysicalSize);
     });
   });
 }
