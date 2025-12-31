@@ -81,10 +81,10 @@ class AuthProvider extends ChangeNotifier {
         } catch (e) {
           debugPrint("Firebase not configured on backend, skipping token sync.");
         }
+      }
 
-        if (onSuccess != null) {
-          onSuccess();
-        }
+      if (onSuccess != null) {
+        onSuccess();
       }
     } catch (e) {
       _errorMessage = e.toString();

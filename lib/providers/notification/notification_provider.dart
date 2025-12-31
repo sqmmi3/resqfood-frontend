@@ -9,9 +9,13 @@ class NotificationProvider with ChangeNotifier {
   Future<void> checkUnreadStatus() async {
     final token = await AuthService.getStoredToken();
     if (token != null) {
-      final count = await NotificationService.getUnreadCount(token);
-      _hasUnread = count > 0;
-      notifyListeners();
+      try {
+        final count = await NotificationService.getUnreadCount(token);
+        _hasUnread = count > 0;
+        if (hasListeners) notifyListeners();
+      } catch (e) {
+        debugPrint("Error checking unread status: $e");
+      }
     }
   }
 

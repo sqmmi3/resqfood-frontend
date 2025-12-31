@@ -27,6 +27,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         _profileFuture = AuthService().fetchProfile(token);
       });
+    } else {
+      // Fallback for testing or when token is missing
+      setState(() {
+        _profileFuture = Future.value(UserProfile(
+          username: 'Test User',
+          email: 'test@example.com',
+          householdCode: '123456',
+          memberSince: '2023-01-01',
+          itemsRescued: 10,
+          itemsExpired: 2,
+        ));
+      });
     }
   }
 

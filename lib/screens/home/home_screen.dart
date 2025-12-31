@@ -79,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 60,
             width: 60,
             child: FloatingActionButton(
+              key: const Key('home_fab'),
               backgroundColor: highContrast 
                 ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black)
                 : theme.colorScheme.primary,
@@ -130,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _menuItem("Barcode", () {
             // TODO
             isHapticsEnabled ? HapticFeedback.lightImpact() : null;
-          }, highContrast),
+          }, highContrast, key: const Key('menu_barcode')),
           Divider(
             height: 1,
             color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : colorScheme.outline,
@@ -143,14 +144,15 @@ class _HomeScreenState extends State<HomeScreen> {
               MaterialPageRoute(builder: (context) => ManualAddItemScreen()),
             );
             isHapticsEnabled ? HapticFeedback.lightImpact() : null;
-          }, highContrast),
+          }, highContrast, key: const Key('menu_add_manually')),
         ],
       ),
     );
   }
 
-  Widget _menuItem(String title, VoidCallback onTap, bool highContrast) {
+  Widget _menuItem(String title, VoidCallback onTap, bool highContrast, {Key? key}) {
     return InkWell(
+      key: key,
       onTap: onTap,
       child: Container(
         width: double.infinity,
