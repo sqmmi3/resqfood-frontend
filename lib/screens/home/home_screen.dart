@@ -138,48 +138,35 @@ class _HomeScreenState extends State<HomeScreen> {
               MaterialPageRoute(builder: (context) => const BarcodeScannerScreen()),
             );
 
-            if (!context.mounted) return;
+            if (!context.mounted || scanResult == null) return;
 
-            if (scanResult != null && scanResult is Map) {
-              final String scannedBarcode = scanResult['barcode'] ?? "";
-              final String aiCategory = scanResult['aiCategory'] ?? "PANTRY";
+            final String scannedBarcode = scanResult['barcode'] ?? "";
 
-              if (scannedBarcode.isNotEmpty) {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) => const Center(child: CircularProgressIndicator()),
-                );
+            if (scannedBarcode.isNotEmpty) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(child: CircularProgressIndicator()),
+              );
 
-                final productData = await ProductService().fetchProductData(scannedBarcode);
+              final productService = context.read<ProductService>();
 
-                if (context.mounted) {
-                  Navigator.pop(context);
+              final productData = await productService.fetchProductData(scannedBarcode);
 
-                  String finalCategory = aiCategory;
-                  final String? offCategory = productData?['category'];
-                  if (offCategory != null && offCategory.isNotEmpty) {
-                    finalCategory = offCategory;
-                  } else {
-                    finalCategory = aiCategory;
-                    String? productName = productData?['name'];
-                    if (productName != null && productName.toLowerCase().contains("milka")) {
-                      finalCategory = "SWEETS";
-                    }
-                  }
+              if (context.mounted) {
+                Navigator.pop(context);
 
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ManualAddItemScreen(
-                        initialName: productData?['name'] ?? "",
-                        initialBarcode: scannedBarcode,
-                        initialCategory: finalCategory,
-                        initialOpenedRule: productData?['openedRule'],
-                      ),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ManualAddItemScreen(
+                      initialName: productData?['name'] ?? "",
+                      initialBarcode: scannedBarcode,
+                      initialCategory: productData?['category'] ?? "PANTRY",
+                      initialOpenedRule: productData?['openedRule'],
                     ),
-                  );
-                }
+                  ),
+                );
               }
             }
           }, highContrast),

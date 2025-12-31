@@ -44,6 +44,10 @@ android {
 
     dependencies {
         coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+        implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
+        implementation("com.google.firebase:firebase-ai")
+        implementation("com.google.guava:guava:31.0.1-android")
+        implementation("org.reactivestreams:reactive-streams:1.0.4")
     }
 
     configurations.all {

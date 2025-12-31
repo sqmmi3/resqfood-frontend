@@ -1,12 +1,14 @@
 import 'dart:convert';
 
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 
 class ProductService {
   final http.Client _client;
+  final GenerativeModel _aiModel;
 
-  ProductService({http.Client? client}) : _client = client ?? http.Client();
+  ProductService(this._aiModel, {http.Client? client}) : _client = client ?? http.Client();
 
   Future<Map<String, String>?> fetchProductData(String barcode) async {
     final url = Uri.parse(
@@ -18,17 +20,13 @@ class ProductService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 1 && data['product'] != null) {
-          String? rawCategories = data['product']['categories'];
+          final String name = data['product']['product_name'] ?? "Unknown product";
+          final String rawCategories = data['product']['categories'] ?? "";
 
-          String category = "";
-          int ruleDays = 3;
+          final String category = await getAiSuggestedCategory(name, rawCategories);
+          int ruleDays = _getOpenedRuleForCategory(category);
 
-          if (rawCategories != null && rawCategories.isNotEmpty) {
-            category = _mapToAppCategory(rawCategories);
-            ruleDays = _getOpenedRuleForCategory(category);
-          }
-
-          debugPrint(response.body.toString());
+          debugPrint("AI Categorized as: $category. Rule: $ruleDays days");
 
           return {
             'name': data['product']['product_name'] ?? "Unknown product",
@@ -44,76 +42,63 @@ class ProductService {
     return null;
   }
 
-  String _mapToAppCategory(String raw) {
-  final text = raw.toUpperCase();
+  Future<String> getAiSuggestedCategory(String name, String details) async {
+    try {
+      final prompt = '''
+        Task: Categorize the product "$name" ($details).
+        
+        Allowed Categories:
+        FRUIT, VEGETABLE, GRAIN, PROTEIN, DAIRY, SWEETS, BEVERAGE, READY_MEAL, SPICE, BAKING, FROZEN, CANNED, PANTRY.
 
-  bool isPantry = text.contains("SPREAD") || 
-      text.contains("PÂTE À TARTINER") || 
-      text.contains("HONEY") || 
-      text.contains("MIEL") || 
-      text.contains("JAM") || 
-      text.contains("CONFITURE");
+        Classification Guide:
+        - READY_MEAL: Pizza, Lasagna, Instant Soup, Microwave meals.
+        - BAKING: Flour, Sugar, Yeast, Baking Soda.
+        - SPICE: Salt, Pepper, Dried Herbs, Curry Powder.
+        - SWEETS: Chocolate, Candy, Chips, Cookies.
+        - PANTRY: Jars/Spreads (Nutella, Jam), Honey, Oils, Vinegar.
+        - GRAIN: Bread, Rice, Pasta, Cereal.
+        - CANNED/FROZEN: Priority goes here if packaging is mentioned.
 
-  bool isLiquid = text.contains("BEVERAGE") || 
-                  text.contains("SODA") || 
-                  text.contains("DRINK") || 
-                  text.contains("WATER") || 
-                  text.contains("EAU") ||
-                  text.contains("BOISSON");
-  
-  bool isBeverage = text.contains("BEVERAGE") || 
-                  text.contains("JUICE") ||
-                  text.contains("SODA") || 
-                  text.contains("DRINK") || 
-                  text.contains("WATER") || 
-                  text.contains("EAU") ||
-                  text.contains("BOISSON");
-                
-  bool isVegetable = text.contains("PICKLE") ||
-                  text.contains("CUCUMBER") ||
-                  text.contains("SALAD") ||
-                  text.contains("TOMATO") ||
-                  text.contains("CARROT") ||
-                  text.contains("WORTEL");
+        RESPONSE: Return ONLY the category name in uppercase. No extra text.
+      ''';
 
-  if (text.contains("FRUIT") && !isLiquid) return "FRUIT";
+      debugPrint("--- CHAT SENT TO GEMINI ---");
+      debugPrint(prompt);
+      debugPrint("---------------------------");
 
-  if (isBeverage && !isPantry && !isVegetable) return "BEVERAGE";
-  if (isPantry) return "PANTRY";
+      final response = await _aiModel.generateContent([Content.text(prompt)]);
+      final result = response.text?.trim().toUpperCase() ?? "PANTRY";
+      debugPrint("--- GEMINI REPLIED ---");
+      debugPrint(result);
 
-  if (text.contains("MEAT") || text.contains("PROTEIN")) return "PROTEIN";
-  if (text.contains("CHEESE") || text.contains("LAIT")) return "DAIRY";
+      const valid = [
+        'FRUIT', 'VEGETABLE', 'GRAIN', 'PROTEIN', 'DAIRY', 
+        'SWEETS', 'BEVERAGE', 'READY_MEAL', 'SPICE', 
+        'BAKING', 'FROZEN', 'CANNED', 'PANTRY'
+      ];
 
-  if (text.contains("VEGETABLE") || text.contains("PLANT-BASED") && !isLiquid && !isPantry) return "VEGETABLE";
-  
-  if (text.contains("CHOCOLATE") || text.contains("SWEET") || text.contains("SUCRE")) {
-    return "SWEETS"; 
+      return valid.contains(result) ? result : "PANTRY";
+      
+    } catch (e) {
+      return "PANTRY";
+    }
   }
-  if (text.contains("GRAIN") || text.contains("CEREAL") || text.contains("PASTA") || text.contains("RICE") || text.contains("BREAD")) return "GRAIN";
-  if (text.contains("FROZEN")) return "FROZEN";
-  if (text.contains("CANNED")) return "CANNED";
-  if (text.contains("SPICE") || text.contains("HERB") || text.contains("CONDIMENT")) return "SPICE";
-  if (text.contains("BAKING") || text.contains("FLOUR")) return "BAKING";
-  if (text.contains("READY-TO-EAT") || text.contains("MEAL")) return "READY_MEAL";
-
-  return "PANTRY";
-}
 
   int _getOpenedRuleForCategory(String category) {
     switch (category) {
-      case 'DAIRY': return 7;
+      case 'DAIRY': return 5;
       case 'PROTEIN': return 3;
-      case 'FRUIT': return 5;
-      case 'VEGETABLE': return 5; 
-      case 'READY_MEAL': return 3;
+      case 'FRUIT': return 7;
+      case 'VEGETABLE': return 7; 
+      case 'READY_MEAL': return 2;
       case 'BEVERAGE': return 10;
-      case 'FROZEN': return 30;
+      case 'FROZEN': return 90;
       case 'PANTRY': return 60;
       case 'CANNED': return 3;
-      case 'GRAIN': return 90;
-      case 'BAKING': return 180;
-      case 'SPICE': return 365;
-      case 'SWEETS': return 14;
+      case 'GRAIN': return 180;
+      case 'BAKING': return 365;
+      case 'SPICE': return 730;
+      case 'SWEETS': return 30;
       default: return 3;
     }
   }
