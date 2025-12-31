@@ -10,34 +10,72 @@ class ProductService {
 
   ProductService(this._aiModel, {http.Client? client}) : _client = client ?? http.Client();
 
-  Future<Map<String, String>?> fetchProductData(String barcode) async {
-    final url = Uri.parse(
-      "https://world.openfoodfacts.org/api/v2/product/$barcode.json?fields=product_name,image_front_url,categories"
-    );
+Future<Map<String, String>?> fetchProductData(String barcode) async {
+    var result = await _fetchFromOpenFoodFacts(barcode);
 
+    if (result == null || result['name']!.isEmpty) {
+      debugPrint("OFF failed or empty for $barcode, trying UPCitemdb...");
+      result = await _fetchFromUPCItemDB(barcode);
+    }
+
+    if (result != null && result['name']!.isNotEmpty) {
+      final category = await getAiSuggestedCategory(result['name']!, "");
+      result['category'] = category;
+      result['openedRule'] = "${_getOpenedRuleForCategory(category)} days";
+      return result;
+    }
+
+    return {'name': "", 'category': "PANTRY", 'openedRule': "3 days"};
+  }
+
+  Future<Map<String, String>?> _fetchFromOpenFoodFacts(String barcode) async {
+    final url = Uri.parse(
+      "https://world.openfoodfacts.org/api/v2/product/$barcode.json?fields=product_name,product_name_nl,product_name_fr,image_front_url"
+    );
+    
     try {
       final response = await _client.get(url);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 1 && data['product'] != null) {
-          final String name = data['product']['product_name'] ?? "Unknown product";
-          final String rawCategories = data['product']['categories'] ?? "";
-
-          final String category = await getAiSuggestedCategory(name, rawCategories);
-          int ruleDays = _getOpenedRuleForCategory(category);
-
-          debugPrint("AI Categorized as: $category. Rule: $ruleDays days");
+          final product = data['product'];
+          
+          String name = product['product_name_nl'] ?? 
+                        product['product_name_fr'] ?? 
+                        product['product_name'] ?? "";
 
           return {
-            'name': data['product']['product_name'] ?? "Unknown product",
-            'image': data['product']['image_front_url'] ?? "",
-            'category': category,
-            'openedRule': "$ruleDays days",
+            'name': name,
+            'image': product['image_front_url'] ?? "",
           };
         }
       }
     } catch (e) {
-      debugPrint("Product lookup failed: $e");
+      debugPrint("OFF Error: $e");
+    }
+    return null;
+  }
+
+  Future<Map<String, String>?> _fetchFromUPCItemDB(String barcode) async {
+    final url = Uri.parse("https://api.upcitemdb.com/prod/trial/lookup?upc=$barcode");
+    
+    try {
+      final response = await _client.get(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['items'] != null && (data['items'] as List).isNotEmpty) {
+          final item = data['items'][0];
+          return {
+            'name': item['title'] ?? "",
+            'image': (item['images'] != null && (item['images'] as List).isNotEmpty) 
+                     ? item['images'][0] 
+                     : "",
+          };
+        }
+      }
+    } catch (e) {
+      debugPrint("UPCitemdb Error: $e");
     }
     return null;
   }

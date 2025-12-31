@@ -163,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       initialName: productData?['name'] ?? "",
                       initialBarcode: scannedBarcode,
                       initialCategory: productData?['category'] ?? "PANTRY",
-                      initialOpenedRule: productData?['openedRule'],
+                      initialOpenedRule: productData?['openedRule'] ?? "3 days",
                     ),
                   ),
                 );
