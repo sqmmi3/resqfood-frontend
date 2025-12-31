@@ -22,8 +22,10 @@ class UserItemProvider extends ChangeNotifier {
       debugPrint("Error fetching items: $e");
     }
 
-    loading = false;
-    notifyListeners();
+    if (hasListeners) {
+      loading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> saveBatch(List<UserItem> itemsToSave) async {

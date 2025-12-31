@@ -78,7 +78,7 @@ class AuthService {
     if (response.statusCode != 200) {
       throw Exception('Failed to update device token');
     } else {
-      debugPrint('✅ FCM token successfully sent to back-end.');
+      debugPrint('FCM token successfully sent to back-end.');
     }
   }
 
@@ -99,7 +99,7 @@ class AuthService {
     if (response.statusCode != 200) {
       throw Exception('Failed to remove device token');
     } else {
-      debugPrint('✅ FCM token sucessfully removed from backend.');
+      debugPrint('FCM token sucessfully removed from backend.');
     }
   }
 

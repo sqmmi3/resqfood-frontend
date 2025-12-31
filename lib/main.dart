@@ -51,7 +51,9 @@ Future<void> main() async {
 }
 
 class ResQFoodApp extends StatelessWidget {
-  const ResQFoodApp({super.key});
+  final GlobalKey<NavigatorState>? navKey;
+
+  const ResQFoodApp({super.key, this.navKey});
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +80,7 @@ class ResQFoodApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      navigatorKey: navigatorKey,
+      navigatorKey: navKey ?? navigatorKey,
       builder: (context, child) {
         final isLoading = context.watch<UserItemProvider>().loading;
         return MediaQuery(

@@ -15,12 +15,14 @@ class _NotificationBannerState extends State<NotificationBanner> {
   String? _title;
   String? _body;
   Timer? _timer;
+  StreamSubscription<RemoteMessage>? _subscription;
 
   @override
   void initState() {
     super.initState();
 
-    NotificationService.foregroundStream.listen((RemoteMessage message) {
+    _subscription = NotificationService.foregroundStream.listen((RemoteMessage message) {
+      if (!mounted) return;
       setState(() {
         _title = message.notification?.title;
         _body = message.notification?.body;
@@ -28,10 +30,12 @@ class _NotificationBannerState extends State<NotificationBanner> {
 
       _timer?.cancel();
       _timer = Timer(const Duration(seconds: 4), () {
-        setState(() {
-          _title = null;
-          _body = null;
-        });
+        if (mounted) {
+          setState(() {
+            _title = null;
+            _body = null;
+          });
+        }
       });
     });
   }
@@ -39,6 +43,7 @@ class _NotificationBannerState extends State<NotificationBanner> {
   @override
   void dispose() {
     _timer?.cancel();
+    _subscription?.cancel();
     super.dispose();
   }
 
