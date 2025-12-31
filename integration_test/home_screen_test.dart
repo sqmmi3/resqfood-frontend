@@ -22,7 +22,7 @@ Future<void> pumpAppWithLogin(WidgetTester tester) async {
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: const ResQFoodApp(),
+      child: ResQFoodApp(navKey: GlobalKey<NavigatorState>()),
     ),
   );
   await tester.pumpAndSettle();

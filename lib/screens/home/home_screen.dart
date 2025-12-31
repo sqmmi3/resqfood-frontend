@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:frontend/providers/user_item/user_item_provider.dart';
+import 'package:frontend/screens/items/barcode_scanner_screen.dart';
 import 'package:frontend/screens/items/manual_add_item_screen.dart';
+import 'package:frontend/services/user_item/product_service.dart';
 import 'package:frontend/widgets/user_item/user_item_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -128,9 +130,44 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _menuItem("Barcode", () {
-            // TODO
+          _menuItem("Barcode", () async {
+            toggleMenu();
             isHapticsEnabled ? HapticFeedback.lightImpact() : null;
+            final String? scannedBarcode = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const BarcodeScannerScreen()),
+            );
+
+            if (!context.mounted) return;
+
+            if (scannedBarcode != null && scannedBarcode.isNotEmpty) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(child: CircularProgressIndicator()),
+              );
+
+              final productData = await ProductService().fetchProductData(scannedBarcode);
+              final String initialName = productData?['name'] ?? "";
+              final String? initialCategory = productData?['category'];
+              final String? initialOpenedRule = productData?['openedRule'];
+
+              if (context.mounted) {
+                Navigator.pop(context);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ManualAddItemScreen(
+                      initialName: initialName,
+                      initialBarcode: scannedBarcode,
+                      initialCategory: initialCategory,
+                      initialOpenedRule: initialOpenedRule,
+                    ),
+                  ),
+                );
+              }
+            }
           }, highContrast, key: const Key('menu_barcode')),
           Divider(
             height: 1,
