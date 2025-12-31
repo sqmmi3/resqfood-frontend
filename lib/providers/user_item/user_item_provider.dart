@@ -4,7 +4,10 @@ import 'package:frontend/models/user_item.dart';
 import 'package:frontend/services/user_item/user_item_service.dart';
 
 class UserItemProvider extends ChangeNotifier {
-  final UserItemService _service = UserItemService();
+  final UserItemService _service;
+
+  UserItemProvider({UserItemService? service})
+    : _service = service ?? UserItemService();
 
   List<GroupedUserItem> _items = [];
   List<GroupedUserItem> get items => _items;

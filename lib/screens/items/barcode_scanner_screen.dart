@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:frontend/providers/auth/auth_provider.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +12,7 @@ class BarcodeScannerScreen extends StatefulWidget {
 
 class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
   late MobileScannerController controller;
+  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -20,7 +20,25 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
     controller = MobileScannerController(
       detectionSpeed: DetectionSpeed.noDuplicates,
       facing: CameraFacing.back,
+      returnImage: true,
     );
+  }
+
+  void _handleDetection(BarcodeCapture capture) async {
+    if (_isProcessing) return;
+
+    final barcode = capture.barcodes.first.rawValue;
+    if (barcode == null || barcode.isEmpty) return;
+
+    setState(() => _isProcessing = true);
+
+    await controller.stop();
+
+    if (!mounted) return;
+
+    Navigator.pop(context, {
+      'barcode': barcode
+    });
   }
 
   @override
@@ -50,40 +68,21 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
               : (isDark ? Colors.white70 : Colors.black54),
         ),
         actions: [
-          ValueListenableBuilder<MobileScannerState>(
-            valueListenable: controller,
-            builder: (context, state, child) {
-              if (!state.isInitialized) {
-                return const SizedBox.shrink();
-              }
-              final torchState = state.torchState;
-              return IconButton(
-                icon: Icon(
-                  torchState == TorchState.on ? Icons.flash_on : Icons.flash_off,
-                  color: torchState == TorchState.on ? Colors.yellow : (highContrast ? contrastColor : null),
-                ),
-                onPressed: () => controller.toggleTorch(),
-              );
-            },
-          ),
+          IconButton(
+            onPressed: () => controller.toggleTorch(),
+            icon: const Icon(Icons.flash_on),
+          )
         ],
       ),
       body: Stack(
         children: [
           MobileScanner(
             controller: controller,
-            onDetect: (capture) {
-              final List<Barcode> barcodes = capture.barcodes;
-              if (barcodes.isNotEmpty) {
-                final String code = barcodes.first.rawValue ?? "";
-                if (code.isNotEmpty) {
-                  if (authProvider.hapticsEnabled) HapticFeedback.vibrate();
-                  Navigator.pop(context, code);
-                }
-              }
-            },
+            onDetect: _handleDetection,
           ),
           _buildScannerOverlay(highContrast, contrastColor),
+          if (_isProcessing)
+            const Center(child: CircularProgressIndicator(color: Colors.greenAccent)),
         ],
       ),
     );

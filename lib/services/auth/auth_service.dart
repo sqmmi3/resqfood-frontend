@@ -9,21 +9,27 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
-  final String baseUrl = dotenv.env['API_BASE_URL'] ?? '';
-  static const storage = FlutterSecureStorage();
+  final String baseUrl;
+  final http.Client _client;
+  final FlutterSecureStorage storage;
   String? _storedJwt;
+
+  AuthService({http.Client? client, FlutterSecureStorage? storage, String? baseUrl})
+      : _client = client ?? http.Client(),
+        storage = storage ?? const FlutterSecureStorage(),
+        baseUrl = baseUrl ?? dotenv.env['API_BASE_URL'] ?? '';
 
   Future<void> saveToken(String token) async {
     _storedJwt = token;
     await storage.write(key: "auth_token", value: token);
   }
 
-  static Future<String?> getStoredToken() async {
+  Future<String?> getStoredToken() async {
     return await storage.read(key: "auth_token");
   }
 
   Future<LoginResponse> login(LoginRequest request) async {
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse('$baseUrl/auth/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(request.toJson()),
@@ -44,7 +50,7 @@ class AuthService {
   }
 
   Future<RegisterResponse> register(String username, String email, String password) async {
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse('$baseUrl/users'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -66,7 +72,7 @@ class AuthService {
       throw Exception('Cannot update device token: user not logged in');
     }
 
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse('$baseUrl/users/device-token'),
       headers: {
         'Authorization': 'Bearer $_storedJwt',
@@ -87,7 +93,7 @@ class AuthService {
       throw Exception('Cannot remove device token: user not logged in');
     }
 
-    final response = await http.delete(
+    final response = await _client.delete(
       Uri.parse('$baseUrl/users/device-token'),
       headers: {
         'Authorization': 'Bearer $_storedJwt',
@@ -104,7 +110,7 @@ class AuthService {
   }
 
   Future<UserProfile> fetchProfile(String token) async {
-    final response = await http.get(
+    final response = await _client.get(
       Uri.parse("$baseUrl/users/profile"),
       headers: {
         'Authorization': 'Bearer $token',

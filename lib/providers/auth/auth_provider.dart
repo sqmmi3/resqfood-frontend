@@ -8,7 +8,10 @@ import 'package:frontend/services/notification/notification_service.dart';
 enum AuthStatus { idle, loading, authenticated, error }
 
 class AuthProvider extends ChangeNotifier {
-  final AuthService _authService = AuthService();
+  final AuthService _authService;
+
+  AuthProvider({AuthService? authService}) 
+    : _authService = authService ?? AuthService();
 
   AuthStatus _status = AuthStatus.idle;
   AuthStatus get status => _status;
@@ -71,21 +74,22 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final loginRequest = LoginRequest(username: username, password: password);
-      _user = await  _authService.login(loginRequest);
+      _user = await _authService.login(loginRequest);
       _status = AuthStatus.authenticated;
 
-      final fcmToken = await NotificationService.getDeviceToken();
-      if (fcmToken != null) {
-        try {
+      try {
+        final fcmToken = await NotificationService.getDeviceToken();
+        if (fcmToken != null) {
           await _authService.updateDeviceToken(fcmToken);
-        } catch (e) {
-          debugPrint("Firebase not configured on backend, skipping token sync.");
         }
+      } catch (e) {
+        debugPrint("Notification token sync failed: $e");
       }
 
       if (onSuccess != null) {
         onSuccess();
       }
+      
     } catch (e) {
       _errorMessage = e.toString();
       _status = AuthStatus.error;
@@ -114,7 +118,13 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    final fcmToken = await NotificationService.getDeviceToken();
+    String? fcmToken;
+    try {
+      fcmToken = await NotificationService.getDeviceToken();
+    } catch (e) {
+      debugPrint("Firebase not available, skipping token removal.");
+    }
+    
     try {
       if (fcmToken != null) {
         await _authService.removeDeviceToken(fcmToken);

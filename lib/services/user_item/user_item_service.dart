@@ -8,16 +8,26 @@ import 'package:frontend/services/auth/auth_service.dart';
 import 'package:http/http.dart' as http;
 
 class UserItemService {
-  final String baseUrl = dotenv.env['API_BASE_URL'] ?? '';
+  final String baseUrl;
+  final http.Client _client;
+  final AuthService _authService;
+
+  UserItemService({
+    http.Client? client,
+    AuthService? authService,
+    String? baseUrl,
+  })  : _client = client ?? http.Client(),
+        _authService = authService ?? AuthService(),
+        baseUrl = baseUrl ?? dotenv.env['API_BASE_URL'] ?? '';
 
   Future<List<UserItem>> getUserItems() async {
-    final token = await AuthService.getStoredToken();
+    final token = await _authService.getStoredToken();
 
     if (token == null) {
       throw Exception("No authentication token found.");
     }
 
-    final response = await http.get(
+    final response = await _client.get(
       Uri.parse("$baseUrl/user-items"),
       headers: {
         'Authorization': 'Bearer $token',
@@ -77,9 +87,9 @@ class UserItemService {
   }
 
   Future<void> saveUserItemBatch(List<UserItem> items) async {
-    final token = await AuthService.getStoredToken();
+    final token = await _authService.getStoredToken();
 
-    final response = await http.put(
+    final response = await _client.put(
       Uri.parse("$baseUrl/user-items/batch"),
       headers: {
         'Authorization': 'Bearer $token',
@@ -96,9 +106,9 @@ class UserItemService {
   }
 
   Future<void> deleteUserItem(int id) async {
-    final token = await AuthService.getStoredToken();
+    final token = await _authService.getStoredToken();
     
-    final response = await http.delete(
+    final response = await _client.delete(
       Uri.parse("$baseUrl/user-items/$id"),
       headers: {
         'Authorization': 'Bearer $token',

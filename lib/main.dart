@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/firebase_options.dart';
@@ -11,6 +12,7 @@ import 'package:frontend/screens/auth/login_screen.dart';
 import 'package:frontend/screens/main_screen.dart';
 import 'package:frontend/services/auth/auth_service.dart';
 import 'package:frontend/services/notification/notification_service.dart';
+import 'package:frontend/services/user_item/product_service.dart';
 import 'package:frontend/theme/app_theme.dart';
 import 'package:frontend/widgets/notification/notification_banner.dart';
 import 'package:provider/provider.dart';
@@ -37,9 +39,19 @@ Future<void> main() async {
   final token = await NotificationService.getDeviceToken();
   debugPrint("FCM TOKEN: $token");
 
+  final geminiModel = FirebaseAI
+      .googleAI()
+      .generativeModel(
+        model: 'gemini-2.5-flash',
+        systemInstruction: Content.system(
+          "You are a professional food inventory system. Your only job is to categorize grocery items into a specific 13-category taxonomy. You never provide explanations, only the single-word category name."
+        ),
+      );
+
   runApp(
     MultiProvider(
       providers: [
+        Provider<ProductService>(create: (_) => ProductService(geminiModel)),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UserItemProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
