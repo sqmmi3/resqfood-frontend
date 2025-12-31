@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/services/notification/notification_service.dart';
 
 class NotificationBanner extends StatefulWidget {
-  const NotificationBanner({super.key});
+  final Stream<RemoteMessage>? streamOverride;
+  const NotificationBanner({super.key, this.streamOverride});
 
   @override
   State<NotificationBanner> createState() => _NotificationBannerState();
@@ -15,12 +16,15 @@ class _NotificationBannerState extends State<NotificationBanner> {
   String? _title;
   String? _body;
   Timer? _timer;
+  StreamSubscription<RemoteMessage>? _subscription;
 
   @override
   void initState() {
     super.initState();
 
-    NotificationService.foregroundStream.listen((RemoteMessage message) {
+    final stream = widget.streamOverride ?? NotificationService.foregroundStream;
+    stream.listen((RemoteMessage message) {
+      if (!mounted) return;
       setState(() {
         _title = message.notification?.title;
         _body = message.notification?.body;
@@ -28,10 +32,12 @@ class _NotificationBannerState extends State<NotificationBanner> {
 
       _timer?.cancel();
       _timer = Timer(const Duration(seconds: 4), () {
-        setState(() {
-          _title = null;
-          _body = null;
-        });
+        if (mounted) {
+          setState(() {
+            _title = null;
+            _body = null;
+          });
+        }
       });
     });
   }
@@ -39,6 +45,7 @@ class _NotificationBannerState extends State<NotificationBanner> {
   @override
   void dispose() {
     _timer?.cancel();
+    _subscription?.cancel();
     super.dispose();
   }
 

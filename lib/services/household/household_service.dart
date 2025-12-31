@@ -6,16 +6,26 @@ import 'package:frontend/services/auth/auth_service.dart';
 import 'package:http/http.dart' as http;
 
 class HouseholdService {
-  final String baseUrl = dotenv.env['API_BASE_URL'] ?? '';
+  final String baseUrl;
+  final http.Client _client;
+  final AuthService _authService;
+
+  HouseholdService({
+    http.Client? client,
+    AuthService? authService,
+    String? baseUrl,
+  })  : _client = client ?? http.Client(),
+        _authService = authService ?? AuthService(),
+        baseUrl = baseUrl ?? dotenv.env['API_BASE_URL'] ?? '';
 
   Future<String> createHousehold() async {
-    final token = await AuthService.getStoredToken();
+    final token = await _authService.getStoredToken();
 
     if (token == null) {
       throw Exception("No authentication token found.");
     }
 
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse("$baseUrl/households/create"),
       headers: {
         'Authorization': 'Bearer $token',
@@ -33,13 +43,13 @@ class HouseholdService {
   }
 
   Future<void> joinHousehold(String inviteCode) async {
-    final token = await AuthService.getStoredToken();
+    final token = await _authService.getStoredToken();
 
     if (token == null) {
       throw Exception("No authentication token found.");
     }
 
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse("$baseUrl/households/join/$inviteCode"),
       headers: {
         'Authorization': 'Bearer $token',
@@ -55,13 +65,13 @@ class HouseholdService {
   }
 
   Future<void> leaveHousehold() async {
-    final token = await AuthService.getStoredToken();
+    final token = await _authService.getStoredToken();
 
     if (token == null) {
       throw Exception("No authentication token found.");
     }
 
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse("$baseUrl/households/leave"),
       headers: {
         'Authorization': 'Bearer $token',
@@ -80,7 +90,7 @@ class HouseholdService {
   }
 
   Future<HouseholdDetails> fetchMyHousehold(String token) async {
-    final response = await http.get(
+    final response = await _client.get(
       Uri.parse("$baseUrl/households/my-household"),
       headers: {
         'Authorization': 'Bearer $token',

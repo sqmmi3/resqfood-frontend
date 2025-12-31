@@ -33,10 +33,16 @@ dependencies:
 
   animated_text_kit: ^4.3.0
 
+  firebase_ai: ^3.6.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.10.4
+  mockito: ^5.6.1
   flutter_lints: ^6.0.0
+  integration_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true

@@ -81,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 60,
             width: 60,
             child: FloatingActionButton(
+              key: const Key('home_fab'),
               backgroundColor: highContrast 
                 ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black)
                 : theme.colorScheme.primary,
@@ -132,27 +133,26 @@ class _HomeScreenState extends State<HomeScreen> {
           _menuItem("Barcode", () async {
             toggleMenu();
             isHapticsEnabled ? HapticFeedback.lightImpact() : null;
-            final String? scannedBarcode = await Navigator.push(
+
+            final dynamic scanResult = await Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const BarcodeScannerScreen()),
             );
 
-            if (!context.mounted) return;
+            if (!context.mounted || scanResult == null) return;
 
-            if (scannedBarcode != null && scannedBarcode.isNotEmpty) {
+            final String scannedBarcode = scanResult['barcode'] ?? "";
+
+            if (scannedBarcode.isNotEmpty) {
               showDialog(
                 context: context,
                 barrierDismissible: false,
                 builder: (context) => const Center(child: CircularProgressIndicator()),
               );
 
-              final productData = await ProductService().fetchProductData(scannedBarcode);
-              final String initialName = productData?['name'] ?? "";
-              final String? initialCategory = productData?['category'];
-              final String? initialOpenedRule = productData?['openedRule'];
+              final productService = context.read<ProductService>();
 
-              debugPrint(initialName);
-              debugPrint(initialCategory);
+              final productData = await productService.fetchProductData(scannedBarcode);
 
               if (context.mounted) {
                 Navigator.pop(context);
@@ -161,16 +161,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => ManualAddItemScreen(
-                      initialName: initialName,
+                      initialName: productData?['name'] ?? "",
                       initialBarcode: scannedBarcode,
-                      initialCategory: initialCategory,
-                      initialOpenedRule: initialOpenedRule,
+                      initialCategory: productData?['category'] ?? "PANTRY",
+                      initialOpenedRule: productData?['openedRule'] ?? "3 days",
                     ),
                   ),
                 );
               }
             }
-          }, highContrast),
+          }, highContrast, key: const Key('menu_barcode')),
           Divider(
             height: 1,
             color: highContrast ? (theme.brightness == Brightness.dark ? Colors.white : Colors.black) : colorScheme.outline,
@@ -183,14 +183,15 @@ class _HomeScreenState extends State<HomeScreen> {
               MaterialPageRoute(builder: (context) => ManualAddItemScreen()),
             );
             isHapticsEnabled ? HapticFeedback.lightImpact() : null;
-          }, highContrast),
+          }, highContrast, key: const Key('menu_add_manually')),
         ],
       ),
     );
   }
 
-  Widget _menuItem(String title, VoidCallback onTap, bool highContrast) {
+  Widget _menuItem(String title, VoidCallback onTap, bool highContrast, {Key? key}) {
     return InkWell(
+      key: key,
       onTap: onTap,
       child: Container(
         width: double.infinity,

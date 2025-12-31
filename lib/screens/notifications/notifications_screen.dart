@@ -15,6 +15,9 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
+  final AuthService _authService = AuthService();
+  final NotificationService _notificationService = NotificationService();
+
   List<NotificationModel> _notifications = [];
   bool _isLoading = true;
   String? _errorMessage;
@@ -27,10 +30,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Future<void> _loadNotifications() async {
     try {
-      final token = await AuthService.getStoredToken();
+      final token = await _authService.getStoredToken();
       if (token == null) throw Exception("Not authenticated");
 
-      final data = await NotificationService.fetchNotifications(token);
+      final data = await _notificationService.fetchNotifications(token);
 
       setState(() {
         _notifications = data;
@@ -47,10 +50,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
   void _markAllReadOnExit() async {
     if (_notifications.any((n) => !n.isRead)) {
       try {
-        final token = await AuthService.getStoredToken();
+        final token = await _authService.getStoredToken();
         if (token == null) throw Exception("Not authenticated");
 
-        NotificationService.markAllAsRead(token);
+        _notificationService.markAllAsRead(token);
       } catch (e) {
         debugPrint("Failed to mark all read on exit: $e");
       }
@@ -58,7 +61,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   Future<void> _handleDelete(int index) async {
-    final token = await AuthService.getStoredToken();
+    final token = await _authService.getStoredToken();
     if (token == null) throw Exception("Not authenticated");
 
     final notificationToDelete = _notifications[index];
@@ -68,9 +71,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
     });
 
     try {
-      final token = await AuthService.getStoredToken();
+      final token = await _authService.getStoredToken();
       if (token != null) {
-        await NotificationService.deleteNotification(
+        await _notificationService.deleteNotification(
           notificationToDelete.id,
           token,
         );
@@ -94,9 +97,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
       });
 
       try {
-        final token = await AuthService.getStoredToken();
+        final token = await _authService.getStoredToken();
         if (token != null) {
-          await NotificationService.markAsRead(notification.id, token);
+          await _notificationService.markAsRead(notification.id, token);
         }
       } catch (e) {
         debugPrint("Failed to mark as read $e");
