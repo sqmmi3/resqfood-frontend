@@ -42,7 +42,7 @@ Future<void> main() async {
   final geminiModel = FirebaseAI
       .googleAI()
       .generativeModel(
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-2.5-flash-lite',
         systemInstruction: Content.system(
           "You are a professional food inventory system. Your only job is to categorize grocery items into a specific 13-category taxonomy. You never provide explanations, only the single-word category name."
         ),

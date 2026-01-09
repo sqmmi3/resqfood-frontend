@@ -119,8 +119,10 @@ class UserItemBar extends StatelessWidget {
                       const SizedBox(width: 6),
                     ],
                     Text(
+                      isExpired ? "Expires today!" :
+                      daysLeft + 1 == 1 ? "Expires tomorrow!" :
                       daysLeft <= 7 && !isExpired
-                      ? "$daysLeft days left!"
+                      ? "${daysLeft + 1} days left!"
                       : dateFormat.format(groupedItem.earliestExpiration),
                       style: TextStyle(
                         fontSize: highContrast ? 14 : 12,
